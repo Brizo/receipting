@@ -8,18 +8,18 @@ var expressSession = require('express-session');
 var MongoStore = require('connect-mongo')(expressSession);
 var fs = require('fs');
 
-//define routes
+// define routes
 var routes = require('./routes/index');
 
-//instantiate application
+// instantiate application
 var app = express();
 
-//connect to db
+// connect to db
 var databaseUrl = "receipting";
 var collections = ["users", "banks", "stations", "customers", "batches", "receipts", "quotes", "receiptIncrVals", "stationParams", "glcodes", "receiptlog"];
 var db = require("mongojs").connect(databaseUrl, collections)
 
-//MySql  --> Aging Analysis
+// MySql  --> Aging Analysis
 var mysql = require('mysql');
 var mysqlconn = mysql.createConnection({
     host: '147.110.192.250',
@@ -30,7 +30,7 @@ var mysqlconn = mysql.createConnection({
     port: 3306
 });
  
-//MSSQL --> CRM Quotations
+// MSSQL --> CRM Quotations
 var mssql = require('mssql');
 var mssqlconf = {
     user: 'sa',
@@ -42,7 +42,7 @@ var mssqlconf = {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+// app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -146,7 +146,7 @@ app.post('/userAuthenticate', function(req, res) {
     });
 });
 
-//get a specific user
+// get a specific user
 app.post('/getUser/:uname', function(req, res) {
     var username = req.params.uname;
     db.users.findOne({"uname":username}, function(err, data) {
@@ -158,7 +158,7 @@ app.post('/getUser/:uname', function(req, res) {
     });
 });
 
-//get a specific receipt
+// get a specific receipt
 app.post('/getReceipt/:id', function(req, res) {
     var recId = req.params.id;
     db.receipts.findOne({recNum:recId}, function(err, data) {
@@ -170,7 +170,7 @@ app.post('/getReceipt/:id', function(req, res) {
     });
 });
 
-//get a specific customer
+// get a specific customer
 app.post('/getCustomer', function(req, res) {
     var accnt = req.body.custno;
     db.customers.findOne({"Account":accnt}, function(err, data) {
@@ -182,7 +182,7 @@ app.post('/getCustomer', function(req, res) {
     });
 });
 
-//get a specific station
+// get a specific station
 app.post('/getStation', function(req, res) {
     var num = Number(req.body.station);
     db.stations.findOne({stnId:num}, function(err, data) {
@@ -194,7 +194,7 @@ app.post('/getStation', function(req, res) {
     });
 });
 
-//get a specific receipt
+// get a specific receipt
 app.post('/getReceipt', function(req, res) {
     var recNum = req.body.recNo;
     db.receipts.findOne({"recNum":recNum}, function(err, data) {
@@ -206,7 +206,7 @@ app.post('/getReceipt', function(req, res) {
     });
 });
 
-//get a single quotation
+// get a single quotation
 app.post('/getQuotation', function(req, res) {
 
     var ref = req.body.QuoteDesc;
@@ -219,7 +219,7 @@ app.post('/getQuotation', function(req, res) {
     });
 });
 
-//get autoincrement values
+// get autoincrement values
 app.post('/getValues', function(req, res) {
     var stationNum = req.body.station;
     db.receiptIncrVals.findOne({station: stationNum},function(err, data) {
@@ -262,7 +262,7 @@ app.post('/getBatch', function(req, res){
 //     RETRIVE ALL DOCUMENTS ROUTES
 //**********************************************
 
-//get all users from db route
+// get all users from db route
 app.post('/showAllUsers', function(req, res){
     db.users.find(function(err, data){
         if ( err || !data) {
@@ -273,7 +273,7 @@ app.post('/showAllUsers', function(req, res){
     });
 });
 
-//get all stations from db route
+// get all stations from db route
 app.post('/showAllStations', function(req, res){
     db.stations.find(function(err, data){
         if (err || !data) {
@@ -284,7 +284,7 @@ app.post('/showAllStations', function(req, res){
     });
 });
 
-//get all receipts for particular Batch
+// get all receipts for particular Batch
 app.post('/getBatchReceipts', function(req, res) {
     var query = req.body;
     var batchId = query.batchId;
@@ -300,7 +300,7 @@ app.post('/getBatchReceipts', function(req, res) {
     });
 });
 
-//get all Multi-Pay Receipts
+// get all Multi-Pay Receipts
 app.post('/showAllMultiPays', function(req, res){
     db.receipts.find({$and:[{mPayID:{$ne:null}},{status:{$ne:"deleted"}}]}, function(err, data){
         if (err || !data) {
@@ -311,7 +311,7 @@ app.post('/showAllMultiPays', function(req, res){
     });
 });
 
-//get all customers from db route
+// get all customers from db route
 app.post('/showAllCustomers', function(req, res){
         db.customers.find({Status: "LIVE "}, function(err, data){
         if( err || !data) {
@@ -322,7 +322,7 @@ app.post('/showAllCustomers', function(req, res){
     });
 });
 
-//get all receipts from db route
+// get all receipts from db route
 app.post('/showAllReceipts', function(req, res){
         var stnCode = req.body.station;
         db.receipts.find({recNum : new RegExp('^'+stnCode)}, function(err, data){
@@ -334,7 +334,7 @@ app.post('/showAllReceipts', function(req, res){
     });
 });
 
-//get all banks from db route
+// get all banks from db route
 app.post('/showAllBanks', function(req, res){
     db.banks.find(function(err, data){
         if( err || !data) {
@@ -345,7 +345,7 @@ app.post('/showAllBanks', function(req, res){
     });
 });
 
-//get all batches from db route
+// get all batches from db route
 app.post('/showAllBatches', function(req, res){
     db.batches.find(function(err, data){
         if( err || !data) {
@@ -356,7 +356,7 @@ app.post('/showAllBatches', function(req, res){
     });
 });
 
-//get all batches from db route
+// get all batches from db route
 app.post('/showAllQuotes', function(req, res){
     db.quotes.find(function(err, data){
         if(err || !data) {
@@ -367,7 +367,7 @@ app.post('/showAllQuotes', function(req, res){
     });
 });
 
-//get all glcodes from db route
+// get all glcodes from db route
 app.post('/getGlCodes', function(req, res){
     db.glcodes.find(function(err, data){
         if(err || !data) {
@@ -382,7 +382,7 @@ app.post('/getGlCodes', function(req, res){
 //   ADD NEW DOCUMENTS
 //**************************************************
 
-//add new user into db route
+// add new user into db route
 app.post('/addNewUser', function(req, res) {
     var newuser = req.body;
     db.users.insert(newuser, function (err, data) {
@@ -406,7 +406,7 @@ app.post('/addNewLog', function(req, res) {
     });
 });
 
-//add new station route
+// add new station route
 app.post('/addNewStation', function(req, res) {
     var newstation = req.body;
     db.stations.insert(newstation);
@@ -419,7 +419,7 @@ app.post('/addNewStation', function(req, res) {
     });
 });
 
-//add new bank route
+// add new bank route
 app.post('/addNewBank', function(req, res) {
     var newbank = req.body;
     db.banks.insert(newbank, function (err, data) {
@@ -431,7 +431,7 @@ app.post('/addNewBank', function(req, res) {
     });
 });
 
-//add new batch
+// add new batch
 app.post('/createNewBatch', function(req, res) {
     newBatch = req.body;
     newBatch["created_on"] = new Date(newBatch.timeopened);
@@ -446,7 +446,7 @@ app.post('/createNewBatch', function(req, res) {
     });
 });
 
-//add new customer route
+// add new customer route
 app.post('/addNewCustomer', function(req, res) {
     var newcustomer = req.body;
     db.customers.insert(newcustomer, function (err, data) {
@@ -458,7 +458,7 @@ app.post('/addNewCustomer', function(req, res) {
     });
 });
 
-//add new receipt route
+// add new receipt route
 app.post('/addNewReceipt', function(req, res){
     newreceipt = req.body;
     newreceipt["created_on"] = new Date(newreceipt.recDate);
@@ -471,7 +471,7 @@ app.post('/addNewReceipt', function(req, res){
     });
 });
 
-//add new quotation into db route
+// add new quotation into db route
 app.post('/addNewQuote', function(req, res){
     var newQuote = req.body;
     db.quotes.insert(newQuote, function (err, data) {
@@ -483,7 +483,7 @@ app.post('/addNewQuote', function(req, res){
     });
 });
 
-//add new glCode into db route
+// add new glCode into db route
 app.post('/addNewGlCode', function(req, res){
     var newGlCode = req.body.glcode;
     var newGlCodeDesc = req.body.glCodeDesc
@@ -529,7 +529,7 @@ app.delete('/deleteUser/:username', function(req, res) {
     });
 });
 
-//terminate Multi-Pay
+// terminate Multi-Pay
 app.delete('/deleteMPay/:mpayid', function(req, res) {
     var recs = Number(req.params.mpayid);
     db.receipts.remove({mPayID:recs}, function(err, deleted) {
@@ -569,7 +569,7 @@ app.delete('/deleteStation/:stnId', function(req, res) {
 //     UPDATE DOCUMENTS
 //*****************************************************
 
-//update status for Multi-Pay
+// update status for Multi-Pay
 app.post('/softDeleteMPay/:mpayid', function(req, res) {
     var recs = Number(req.params.mpayid);
     db.receipts.update({mPayID:recs},{$set: {status: "deleted"}}, { multi: true }, function(err, deleted) {
@@ -761,6 +761,5 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
 
 module.exports = app;
