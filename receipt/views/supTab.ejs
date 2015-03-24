@@ -1,0 +1,30 @@
+<!-- SUPERVISOR TAB -->
+<div class="tab-pane fade in" id="supTab">
+  <div class="panel panel-default">
+    <div class="panel-heading">Supervisor</div>
+    <div class="panel-body">
+      <div class='row-fluid'>
+        <div ng-controller="customerCtrl" class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#showCustomersWarlock" ng-click="showCustomers()" data-backdrop="static"><img src="/images/icons/active/by32/users_4.png"class="img-rounded">Customers</button>
+        </div>
+        <div ng-controller="quotationCtrl" class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#showQuotesWarlock" ng-click="showQuotes()" data-backdrop="static"><img src="/images/icons/active/by32/money_euro.png"class="img-rounded">Quotes</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#searchReceiptsWarlock" data-backdrop="static"><img src="/images/icons/active/by32/cancel.png"class="img-rounded">Cancel Receipt</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#searchMultipayWarlock" ng-click ="showMultiPays()" data-backdrop="static"><img src="/images/icons/active/by32/coins_delete.png" class="img-rounded">Cancel Multipay</button>
+        </div>
+      </div>
+      <div class='row-fluid'>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#cashierTransferWarlock" data-backdrop="static"><img src="/images/icons/active/by32/upgrade_downgrade_account.png"class="img-rounded">Tranfer Cashier</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#cashierAssignWarlock" data-backdrop="static"><img src="/images/icons/active/by32/user_go.png"class="img-rounded">Assign Cashier</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>

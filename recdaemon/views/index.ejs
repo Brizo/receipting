@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <div id = "receipt" width="200"><center><h3>SEC Reipting</h3><b>Amount: </b><i>E 340.00</i><br/><b>Tendered: </b><i>E 350.00</i><br/><b>Change: </b><i>E 10.00</i></center>
+    </div>
+    <input type="button" value="Print" id="print">
+    <script type="text/javascript" src="/javascripts/jquery.min.js"></script>
+    <script type="text/javascript">
+      $("document").ready(function(){
+      	$("#print").click(function(){
+      		var recContent = $("#receipt").html();
+      		$.post('/print',{recContent:recContent},function(data){
+      			console.log(data);
+      		});
+      	});
+      });
+    </script>
+  </body>
+</html>
