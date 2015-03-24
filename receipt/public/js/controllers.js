@@ -85,7 +85,7 @@ angular.module('receipt')
 			var daemonError = "Receipt daemon not started";
 			var adminRError = "You do not have admin rights";
 			var supRError = "You do not have supervisor rights";
-			var cashierRError = "You are not registered a cashier";
+			var cashierRError = "You are not registered as a cashier";
 			var reportRError = "You do not have access to reports";
 			var eftuRError = "You do not have access to EFT uploading";
 			var userPassAgeError = "Your password has expired, You need to change it";
@@ -581,6 +581,7 @@ angular.module('receipt')
 		$scope.currStation = manageData.getCurrStation();
 		$scope.currUser = manageData.getCurrLoginUser();
 
+
 		$scope.showStations = function(){
 		 	manageData.getStations()
 		    	.then(function (data) {
@@ -589,6 +590,7 @@ angular.module('receipt')
 		}
 
 		$scope.addStation = function(){
+			$scope.currUser = manageData.getCurrLoginUser();
 			$scope.stationInserted = false;
 			$scope.stationInsertedMsg = '';
 			$scope.hasAddStationError = false;
@@ -627,11 +629,13 @@ angular.module('receipt')
 					$scope.stationInserted = true;
 					$scope.clearNewStation();
 
+					console.log($scope.currUser);
+
 					// log login event
 					if ($scope.currStation == null) {
-						var log = {action:"AddStation", addedStation:$scope.stnId ,actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+						var log = {action:"AddStation", addedStation:Number($scope.stnId) ,actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
 					} else {
-						var log = {action:"AddStation", addedStation:$scope.stnId, actionBy:$scope.currUser.username, station:$scope.currStation.stnnum, time:Date().toString()}; 
+						var log = {action:"AddStation", addedStation:Number($scope.stnId), actionBy:$scope.currUser.username, station:$scope.currStation.stnnum, time:Date().toString()}; 
 					}
 					recSwitch.insertLog(log).success(function () {
 
@@ -2652,8 +2656,7 @@ angular.module('receipt')
 			} else {
 				// quotation object definition
 
-				var ref = 'Quotation for '+$scope.qReference;
-				var newquote = {Quot_Description:ref, oppo_groupcustname: $scope.qCustGroupName, Quot_CreatedDate :Date().toString(), Quot_CreatedBy:$scope.cashierUname};
+				var newquote = {Oppo_Description:$scope.qReference, oppo_GroupCustName: $scope.qCustGroupName, Quot_CreatedDate :Date().toString(), Quot_CreatedBy:$scope.cashierUname};
 				$http.post('/addNewQuote', newquote ).success(function (resp) {
 					$scope.quoteInsertedMsg = resp;
 					$scope.quoteInserted = true;

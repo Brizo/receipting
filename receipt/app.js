@@ -692,10 +692,10 @@ app.post('/assignCashier/:id', function (req, res) {
 
 // update receipt route
 app.post('/cancelRec/:idD', function(req, res) {
-    var receipt = req.body.idD;
     var receiptNum = idD;
-    var recid = req.params.recNum;
-    db.receipts.update({recNum:receipt},{$set: {status: "cancelled"}}, function (err, saved) {
+    var recid = req.params.idD;
+    console.log(recid);
+    db.receipts.update({recNum:recid},{$set: {status: "cancelled"}}, function (err, saved) {
         if (err) {
             res.send("An error occured");
         } else {
