@@ -21,7 +21,7 @@
 10 error There is likely additional logging output above.
 11 error System Linux 3.11.0-12-generic
 12 error command "/home/brian/.nvm/v0.10.31/bin/node" "/home/brian/.nvm/v0.10.31/bin/npm" "start"
-13 error cwd /home/brian/Documents/SEC/Projects/NODEJS/recdaemon
+13 error cwd /home/brian/Documents/SEC/Projects/GIT/receipting/recdaemon
 14 error node -v v0.10.31
 15 error npm -v 1.4.23
 16 error code ELIFECYCLE

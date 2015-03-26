@@ -66,6 +66,12 @@ app.use('/', routes);
       INTEGRATION ROUTES
 ***********************************************/
 
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
+
 app.post('/refreshCust', function(req, res){
     mysqlconn.connect();
     var query = mysqlconn.query('select * from Aging', function(err, result, fields){
@@ -147,8 +153,8 @@ app.post('/userAuthenticate', function(req, res) {
 });
 
 // get a specific user
-app.post('/getUser/:uname', function(req, res) {
-    var username = req.params.uname;
+app.post('/getUser', function(req, res) {
+    var username = req.body.username;
     db.users.findOne({"uname":username}, function(err, data) {
         if (err || !data) {
             res.send("User not in database");
@@ -159,8 +165,8 @@ app.post('/getUser/:uname', function(req, res) {
 });
 
 // get a specific receipt
-app.post('/getReceipt/:id', function(req, res) {
-    var recId = req.params.id;
+app.post('/getReceipt', function(req, res) {
+    var recId = req.body.recid;
     db.receipts.findOne({recNum:recId}, function(err, data) {
         if (err || !data) {
             res.send("Receipt not in database");
@@ -382,6 +388,16 @@ app.post('/getGlCodes', function(req, res){
 //   ADD NEW DOCUMENTS
 //**************************************************
 
+app.post('/setStationParams', function(req, res) {
+
+    var station = JSON.stringify(req.body);
+
+    fs.writeFile('public/stationParams.json', station,'utf8', function(err){
+      console.log(station);
+    });   
+    console.log("successfully written to file");
+});
+
 // add new user into db route
 app.post('/addNewUser', function(req, res) {
     var newuser = req.body;
@@ -518,8 +534,9 @@ app.post('/setStationParams', function(req, res){
 //*****************************************************
 
 // delete a user rout
-app.delete('/deleteUser/:username', function(req, res) {
-    var user = req.params.username;
+app.post('/deleteUser', function(req, res) {
+    var user = req.body.uname;
+    console.log(user);
     db.users.remove({uname:user}, function(err, deleted) {
         if (err) {
             res.send(err);
@@ -530,7 +547,7 @@ app.delete('/deleteUser/:username', function(req, res) {
 });
 
 // terminate Multi-Pay
-app.delete('/deleteMPay/:mpayid', function(req, res) {
+app.post('/deleteMPay/:mpayid', function(req, res) {
     var recs = Number(req.params.mpayid);
     db.receipts.remove({mPayID:recs}, function(err, deleted) {
         if (err) {
@@ -542,7 +559,7 @@ app.delete('/deleteMPay/:mpayid', function(req, res) {
 });
 
 // delete a customer 
-app.delete('/deleteCustomer/:custId', function(req, res) {
+app.post('/deleteCustomer/:custId', function(req, res) {
     var cust = req.params.custId;
     db.customers.remove({custId:user}, function(err, deleted) {
         if (err) {
@@ -554,8 +571,8 @@ app.delete('/deleteCustomer/:custId', function(req, res) {
 });
 
 // delete a station route
-app.delete('/deleteStation/:stnId', function(req, res) {
-    var station = Number(req.params.stnId);
+app.post('/deleteStation', function(req, res) {
+    var station = Number(req.body.stnid);
     db.stations.remove({stnId:station}, function(err, deleted) {
         if (err) {
             res.send(err);
@@ -595,10 +612,9 @@ app.post('/incrementBatch', function (req, res) {
 });
 
 // update user route
-app.post('/updateUser/:uname', function(req, res) {
-    var username = req.params.uname;
+app.post('/updateUser', function(req, res) {
     var user = req.body;
-    db.users.update({uname:username},{$set: {uname: user.uname, passkey : user.passkey, firstname: user.firstname, lastname: user.lastname, roles: user.roles }}, function (err, saved) {
+    db.users.update({uname:user.uname},{$set: {passkey : user.passkey, firstname: user.firstname, lastname: user.lastname, roles: user.roles }}, function (err, saved) {
         if (err) {
             res.send("An error occured");    
         } else {
@@ -663,8 +679,8 @@ app.post('/updateAutoIncrements', function(req, res) {
 });
 
 // transfer cashier route
-app.post('/transfereCashier/:id', function (req, res) {
-    var cashierId = req.params.id;
+app.post('/transfereCashier', function (req, res) {
+    var cashierId = req.body.cashierId;
     var transferStn = req.body.station;
     db.users.update({uname:cashierId},{$set: {station:transferStn}}, function (err, saved){
         if (err) {
@@ -691,24 +707,24 @@ app.post('/assignCashier/:id', function (req, res) {
 });
 
 // update receipt route
-app.post('/cancelRec/:idD', function(req, res) {
-    var receiptNum = idD;
-    var recid = req.params.idD;
-    console.log(recid);
+app.post('/cancelRec', function(req, res) {
+    var toCancel = req.body;
+    var recid = toCancel.recNum;
+    
     db.receipts.update({recNum:recid},{$set: {status: "cancelled"}}, function (err, saved) {
         if (err) {
             res.send("An error occured");
         } else {
             res.send("Receipt Cancelled");
         }
-    });
+    }); 
 });
 
 // update customer route
 app.post('/updateCustomer/:custId', function(req, res) {
     var customer = req.body;
     var custid = req.params.custId;
-    db.customers.update({CUSTNO:custid},{$set: {CUSTNO: customer.custno, CUSTNAME: customer.custNameU, CUSTADDR1:customer.custAddr1 , CUSTADDR2: customer.custAddr2, CUSTADDR3: customer.custAddr3 , CUSTREF: customer.custRef }}, function (err, saved) {
+    db.customers.update({CUSTNO:custid},{$set: {CUSTNO:customer.custno, CUSTNAME:customer.custNameU, CUSTADDR1:customer.custAddr1 , CUSTADDR2: customer.custAddr2, CUSTADDR3: customer.custAddr3 , CUSTREF: customer.custRef }}, function (err, saved) {
         if (err) {
             res.send("An error occured");
         } else {
@@ -718,16 +734,20 @@ app.post('/updateCustomer/:custId', function(req, res) {
 });
 
 // update station route
-app.post('/updateStation/:stnId', function(req, res) {  
+app.post('/updateStation', function(req, res) {  
     var station = req.body;
-    var stnid = req.params.stnId;
+    var stnid = Number(req.body.station);
+    console.log(stnid);
+    console.log(station);
 
-    db.stations.update({stnId:stnid},{$set: {stnName: station.stnName, stnBatchCode : station.stnBatchCode, stnLastBatch: station.stnLastBatch, stnLastReceipt:station.stnLastReceipt}}, function (err, saved) {
+    db.stations.update({stnId:stnid},{$set: {stnName:station.stnName, stnBatchCode:station.stnBatchCode}}, function (err, saved) {
         if (err) {
             res.send("An error occured");
         } else {
             res.send("Station successfully updated");
+            console.log("Station successfully updated");
         }
+        console.log(err);
     });
 });
 

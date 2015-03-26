@@ -108,9 +108,6 @@ angular.module('receipt')
 		      	$scope.userstationD = data.station;
 		      	$scope.userolesD = data.roles;
 
-		      	console.log("Password age is :");
-		      	console.log($scope.passageD);
-
 		      	if ($scope.uname != $scope.usernameD && $scope.passkey != $scope.userpassD) {
 		      		$scope.loginErrorMsgs.push(userNpssWdError);
 					$scope.hasLoginError = true;
@@ -284,7 +281,7 @@ angular.module('receipt')
 			} else if (!Number($scope.stnNum)){
 				$scope.addUserErrorMsgs.push(stationNotNumError);
 				$scope.hasAdduserError = true;
-			} else if ($scope.userExist == false){
+			} else if ($scope.userExist == true){
 				$scope.addUserErrorMsgs.push(userExistError);
 				$scope.hasAdduserError = true;
 			} else if (!$scope.adminRole && !$scope.cashierRole && !$scope.supRole && !$scope.reportRole) {
@@ -393,11 +390,9 @@ angular.module('receipt')
 		}
 
 		$scope.getUser = function (uName) {
-			var uname = uName;
 			$scope.cuname = '';
-			$http.post('/getUser/' + uname).success(function(data) {
-
-				console.log(data);
+			var username = {username:uName};
+			$http.post('/getUser/', username).success(function(data) {
 		      	// used to display edit user form when user is found
 		      	if (data == "User not in database") {
 		      		$scope.hasuserinfo = false;
@@ -432,9 +427,9 @@ angular.module('receipt')
 		}
 
 		$scope.updateUser = function (user) {
+			$scope.clearAlerts();
 			var userrolesU = [];
-			var id = user;
-
+			
 			$scope.hasUpdateuserError = false;
 			$scope.updateUserErrorMsgs = [];
 			$scope.userUpdated = false;
@@ -455,9 +450,9 @@ angular.module('receipt')
 			}
 
 			// create the user object
-			var updateuser = {uname: $scope.usernmeU, passkey:$scope.userpssU, firstname : $scope.firstnameU, lastname: $scope.lastnameU, roles:userrolesU};
+			var updateuser = {uname: user, passkey:$scope.userpssU, firstname : $scope.firstnameU, lastname: $scope.lastnameU, roles:userrolesU};
 
-			$http.post('/updateUser/' + id, updateuser).success(function (resp) {
+			$http.post('/updateUser', updateuser).success(function (resp) {
 				$scope.showUsers();
 				$scope.userUpdatedMsg = resp;
 		        $scope.userUpdated = true;
@@ -480,8 +475,10 @@ angular.module('receipt')
 		}
 
 		$scope.removeUser = function (uname) {
-			var id = uname;
-			$http.delete('/deleteUser/' + id).success(function(resp) {
+			$scope.clearAlerts();
+			var username = {uname:uname};
+			console.log(username);
+			$http.post('/deleteUser', username).success(function(resp) {
 				manageData.getUsers()
 		    		.then(function (data) {
 		      			$scope.users = data;
@@ -495,13 +492,20 @@ angular.module('receipt')
 							var log = {action:"removeUser", removedUser:uname, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
 						}
 						recSwitch.insertLog(log).success(function () {
-
 						});
 		    	});
-				
 			}).error(function () {
 				console.log("An Error occured");
 			});
+		}
+
+		$scope.clearAlerts = function () {
+			$scope.userRemoveMsg = '';
+			$scope.userRemoved = false;
+			$scope.userInsertedMsg = '';
+		    $scope.userInserted = false;
+		    $scope.userUpdatedMsg = '';
+		    $scope.userUpdated = false;
 		}
 
 		$scope.closeTransferCashier = function () {
@@ -524,20 +528,33 @@ angular.module('receipt')
 			$scope.clearEditUser();
 		}
 
-		$scope.transfereCashier = function (id) {
-			var cashierId = id;
-			var updateCashier = {station:$scope.transferStn};
-			$http.post('/transfereCashier/' + cashierId, updateCashier).success(function (resp){
+		$scope.transfereCashier = function (uname, stn) {
+			$scope.cashierTransfered = false;
+			$scope.cashierTransferedMsg = "Cashier Successfuly Transfered";
+			var updateCashier = {cashierId:uname,station:stn};
+
+			$http.post('/transfereCashier', updateCashier).success(function (resp){
+				$scope.cashierTransfered = true;
+				$scope.cashierTransferedMsg = resp;
+				$scope.clearTransferC();
+				$scope.hasuserinfo = false;
+				
 				// log login event
 				if ($scope.currentStn == null) {
-					var log = {action:"transfereCashier", transferedCashier:cashierId, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+					var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
 				} else {
-					var log = {action:"transfereCashier", transferedCashier:cashierId, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
+					var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
 				}
 				recSwitch.insertLog(log).success(function () {
-
 				});
 			});
+		}
+
+		$scope.clearTransferC = function () {
+			$scope.firstnameU = '';
+			$scope.lastnameU = '';
+			$scope.currentStnU = '';
+			$scope.transferStn = '';
 		}
 
 		$scope.assignCashier = function (id) {
@@ -551,7 +568,6 @@ angular.module('receipt')
 					var log = {action:"assignCashier", assignedCashier:cashierId, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
 				}
 				recSwitch.insertLog(log).success(function () {
-
 				});
 			})
 		}
@@ -565,6 +581,22 @@ angular.module('receipt')
 			$http.post('/refreshQuotes').success(function(resp){
 			});
 		}
+
+		// to globalize showing of stations
+		$scope.showStations = function(){
+		 	manageData.getStations()
+		    	.then(function (data) {
+		    		$scope.stations = data;
+		    	});
+		}
+
+		// to globalize showing of quotations
+		$scope.showQuotes = function(){
+			$http.post('/showAllQuotes').success(function (data) {
+				$scope.quotations = data;
+			});
+	    }
+
 	}])//manageUsers controller ends
 
 	.controller('stationCtrl',['$q','$scope','$http','$compile', 'recSwitch','manageData', function($q,$scope, $http, $compile, recSwitch,manageData){
@@ -697,11 +729,15 @@ angular.module('receipt')
 			$scope.hasPStation = false;
 		}
 
-		$scope.updateStation = function (id) {
+		$scope.updateStation = function (stnId) {
+			$scope.stnUpdated = false;
 			$scope.currUser = manageData.getCurrLoginUser();
 			//station object definition
-			var updatestation = {stnId: $scope.stnIdU, stnName:$scope.stnNameU, stnBatchCode:$scope.stnBatchCodeU, stnLastBatch:$scope.stnLastBatchU, stnLastReceipt:$scope.stnLastReceiptU};
-			$http.post('/updateStation/' + id, updatestation).success(function (resp) {
+			var updatestation = {station: stnId, stnName:$scope.stnNameU, stnBatchCode:$scope.stnBatchCodeU};
+			$http.post('/updateStation', updatestation).success(function (resp) {
+				$scope.clearAlerts();
+				$scope.stnUpdated = true;
+				$scope.updateStnMsg = resp;
 				$scope.showStations();
 				$scope.clearEditStation();
 				console.log(resp);
@@ -720,41 +756,68 @@ angular.module('receipt')
 			});
 		}
 
-		$scope.setStationParams = function () {
+		$scope.clearAlerts = function () {
+			$scope.stnUpdated = false;
+			$scope.updateStnMsg = '';
+			$scope.paramsSet = false;
+			$scope.paramsSetMsg = '';
+			$scope.stationInsertedMsg = '';
+			$scope.stationInserted = false;
+			$scope.stnRemoveMsg = '';
+			$scope.stnRemoved = false;
+		}
 
-			var systemparams = {stnId:$scope.stnIdU, stnName:$scope.stnNameU, stnBatchCode:$scope.stnBatchCodeU, stnLastBatch:$scope.stnLastBatchU, stnLastReceipt:$scope.stnLastReceiptU};
+		$scope.setStationParams = function () {
+			$scope.currUser = manageData.getCurrLoginUser();
+			$scope.paramsSet = false;
+			$scope.paramsSetMsg = '';
+			$scope.paramsSetError = false;
+
+			var systemparams = {stnId:$scope.stnIdParam, stnName:$scope.stnNameParam, stnBatchCode:$scope.stnBatchCodeParam};
 
 			$http.post('http://localhost:3080/setStationParams', systemparams).success(function (resp) {
-				$scope.clearEditStation();
+				$scope.paramsSet = true;
+				$scope.paramsSetMsg = resp;
+				$scope.hasPStation = false;
+				
+				$scope.clearParams();
 
 				// log login event
 				if ($scope.currStation == null) {
-					var log = {action:"setStationParams", stationId:$scope.stnIdU ,actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+					var log = {action:"setStationParams", stationId:$scope.stnIdParam ,actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
 				} else {
-					var log = {action:"setStationParams", stationId:$scope.stnIdU, actionBy:$scope.currUser.username, station:$scope.currStation.stnnum, time:Date().toString()}; 
+					var log = {action:"setStationParams", stationId:$scope.stnIdParam, actionBy:$scope.currUser.username, station:$scope.currStation.stnnum, time:Date().toString()}; 
 				}
 				recSwitch.insertLog(log).success(function () {
 
 				});
 			}).error(function () {
-				console.log("An error occured");
+				$scope.paramsSetError = true;
+				$scope.paramsSetErrorMsg = 'An error occured';
 			});
+		}
+
+		$scope.clearParams = function() {
+			$scope.stnIdParam = '';
+			$scope.stnNumParam = '';
+		    $scope.stnNameParam = '';
+		    $scope.stnBatchCodeParam = '';
 		}
 
 		$scope.clearEditStation = function() {
 			$scope.editStn = '';
 		    $scope.stnIdU = '';
 		    $scope.stnNameU = '';
-		    $scope.stnBatchCodeU = '';
-		    $scope.stnLastBatchU = '';
-		    $scope.stnLastReceiptU = '';	 
+		    $scope.stnBatchCodeU = ''; 
 		}
 
 		$scope.removeStation = function (stnId) {
-			var id = Number(stnId);
-			$http.delete('/deleteStation/' + id).success(function(resp) {
+			$scope.currUser = manageData.getCurrLoginUser();
+			var station = {stnid:stnId};
+			$http.post('/deleteStation', station).success(function(resp) {
 				manageData.getStations().
 					then(function (data){
+						$scope.clearAlerts();
 						$scope.stations = data;
 						$scope.stnRemoveMsg = resp;
 						$scope.stnRemoved = true;
@@ -907,7 +970,7 @@ angular.module('receipt')
 
 		$scope.removeCustomer = function (uname) {
 			var id = uname;
-			$http.delete('/deleteCustomer/' + id).success(function(resp) {
+			$http.post('/deleteCustomer/' + id).success(function(resp) {
 				// log login event
 				if ($scope.currStation == null) {
 					var log = {action:"removeCustomer", removedCustomer:uname, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
@@ -2336,9 +2399,9 @@ angular.module('receipt')
 		}
 
 	 	$scope.getCancelRec = function (recId) {
-			var idD = recId;			
-			$http.post('/getReceipt/' + idD).success(function(data) {
-				
+			var idD = {recid:recId};			
+			$http.post('/getReceipt',idD).success(function(data) {
+				$scope.theReceipt = data;
 			    $scope.receiptNo = '';
 			    var type = data.recType;
 			    if (type == "spu") {
@@ -2377,10 +2440,13 @@ angular.module('receipt')
 		}
 
 		$scope.cancelReceipt = function (recId) {
+			$scope.currUser = manageData.getCurrLoginUser();
+			$scope.currStation = manageData.getCurrStation();
 			var idD = recId;
+			var theCancelReceipt = $scope.theReceipt;
 
-			$http.post('/cancelRec/' + idD).success (function (resp) {
-				$scope.clearCancelRec();
+			$http.post('/cancelRec',theCancelReceipt).success (function (resp) {
+          		$scope.clearCancelRec();
 
 				// log event
 				var log = {action:"cancelReceipt", canceledReceipt:recId, actionBy:$scope.currUser.username, station:$scope.currStation.stnId, time:Date().toString()};
@@ -2495,7 +2561,7 @@ angular.module('receipt')
 		$scope.removeReceipts = function (mpayid) {
 			var id = mpayid;
 			$scope.mPayID = Number(id);
-			$http.delete('/deleteMPay/' + id).success(function(resp) {
+			$http.post('/deleteMPay/' + id).success(function(resp) {
 			}).error(function () {
 				console.log("An error occured");
 			});
@@ -2622,16 +2688,7 @@ angular.module('receipt')
 
 		$scope.showQuotes = function(){
 			$http.post('/showAllQuotes').success(function (data) {
-
-				quoteData = '';
-				data.forEach(function(quotation){
-					quoteData += '<tr><td>'+quotation.Oppo_Description+'</td><td>'+quotation.Quot_nettamt+'</td><td>'+quotation.quot_amountpermember+'</td><td>'+quotation.oppo_GroupCustName+'</td></tr>';
-				});
-				
-				$('#showQuotesTblData').html('');
-				var $quoteData1 = $(quoteData).appendTo('#showQuotesTblData');
-				$compile($quoteData1)($scope);
-				$('.quotetable').dataTable();
+				$scope.quotations = data;
 			});
 	    }
 	    
@@ -2674,12 +2731,8 @@ angular.module('receipt')
 		}
 
 		$scope.clearNewQuote = function () {
-			$scope.custNo = '';
-			$scope.custName = '';
-			$scope.custAddr1 = '';
-			$scope.custAddr2 = '';
-			$scope.custAddr2 = '';
-			$scope.custRef = '';
+			$scope.qReference = '';
+			$scope.qCustGroupName = '';
 		}
 
 		$scope.getEditQuote = function (custno) {
@@ -2719,7 +2772,7 @@ angular.module('receipt')
 		$scope.removeQuote = function (qref) {
 
 			var id = uname;
-			$http.delete('/deleteQuote/' + id).success(function(resp) {
+			$http.post('/deleteQuote/' + id).success(function(resp) {
 				// log event
 				var log = {action:"deleteQuote", deletedQuote:qref, actionBy:$scope.currUser.username, station:$scope.currStation.stnId, time:Date().toString()};
 		        recSwitch.insertLog(log).success(function () {
@@ -2751,7 +2804,11 @@ angular.module('receipt')
 
 	.controller('stnTblCtrl',['$scope','$http', function($scope, $http){
 
-	 }])
+	}])
+
+	.controller('qTblCtrl',['$scope','$http', function($scope, $http){
+
+	}])
 
 	.controller('repCtrl',['$scope','$http', '$q', 'manageData', 'getParams', function($scope, $http, $q, manageData, getParams){
 

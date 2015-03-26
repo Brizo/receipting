@@ -76,7 +76,6 @@
 
                             </div>
 
-
                             <div class="form-group">
                               <label for="roleAdmin" class="col-sm-4 control-label">Admin</label>
                               <div class="col-sm-2">
@@ -135,7 +134,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <button type="button" class="close" ng-click="clearAlerts()" data-dismiss="modal" aria-hidden="true">X</button>
                 <h3 class="modal-title" id="panelLabel">Add User</h3>
             </div>
             <div class="modal-body">
@@ -247,7 +246,7 @@
                         <div class="panel-footer">
                           <button type="button" class="btn btn-primary" id="addUser" ng-click="addUser()" >Add New User</button>
                           <button type="button" class="btn btn-warning" id="clear" ng-click="clearNewUser()">Clear</button>
-                          <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers()">Back</button>
+                          <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers();clearAlerts()">Back</button>
                         </div>
                       </div><!-- END PANEL -->
                     </div><!-- END COLUMN -->
@@ -255,7 +254,7 @@
                 </div><!-- CONTAINER -->
             </div> <!-- END MODAL BODY -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
             </div>
         </div> <!-- END MODAL CONTENT -->
     </div> <!-- END MODAL DIALOG -->
@@ -388,11 +387,11 @@
 </div> <!-- END MODAL CLASS -->
 
 <!--SHOW USERS-->
-<div class="modal fade" id="showUsersWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+<div class="modal fade" id="showUsersWarlock" tabindex="-1" role="dialog"  aria-labelledby="panelLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <button type="button" class="close" data-dismiss="modal" ng-click="clearAlerts()" aria-hidden="true">X</button>
                 <h3 class="modal-title" id="panelLabel">ALL USERS</h3>
             </div>
             <div class="modal-body">
@@ -408,11 +407,17 @@
                         <div class="panel-body">
 
                           <!-- SUCCESS MESSAGE DIV FOR DELETION -->
-                            <div class="alert alert-success alert-dismissable" ng-if="userRemoved" >
-                                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                <strong>Success:</strong>
-                                <span>{{userRemoveMsg}}<br></span>
-                            </div>
+                          <div class="alert alert-success alert-dismissable" ng-if="userRemoved" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success:</strong>
+                            <span>{{userRemoveMsg}}<br></span>
+                          </div>
+                          <!-- SUCCESS MESSAGE DIV FOR updating -->
+                          <div class="alert alert-success alert-dismissable" ng-if="userUpdated" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success:</strong>
+                            <span>{{userUpdatedMsg}}<br></span>
+                          </div>
 
                       <div ng-controller="usersTblCtrl as showCase">
                         <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
@@ -452,7 +457,7 @@
                      
            
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="closeShowusers()" data-dismiss="modal" >Close</button>
+                <button type="button" class="btn btn-default" ng-click="closeShowusers();clearAlerts()" data-dismiss="modal" >Close</button>
             </div>
         </div> <!-- END MODAL CONTENT -->
     </div> <!-- END MODAL DIALOG -->
@@ -469,7 +474,7 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clearAlerts()">X</button>
                   <h3 class="modal-title" id="panelLabel">ALL STATIONS</h3>
               </div>
               <div class="modal-body">
@@ -485,14 +490,21 @@
                           <div class="panel-body">
 
                           <!-- SUCCESS MESSAGE DIV FOR DELETION -->
-                              <div class="alert alert-success alert-dismissable" ng-if="stnRemoved" >
-                                  <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                  <strong>Success:</strong>
-                                  <span>{{stnRemoveMsg}}<br></span>
-                              </div>
+                          <div class="alert alert-success alert-dismissable" ng-if="stnRemoved" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success:</strong>
+                            <span>{{stnRemoveMsg}}<br></span>
+                          </div>
+
+                          <!-- SUCCESS MESSAGE STATION UPDATE-->
+                          <div class="alert alert-success alert-dismissable" ng-if="stnUpdated" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success:</strong>
+                            <span>{{updateStnMsg}}<br></span>
+                          </div>
 
                           <div ng-controller="stnTblCtrl as showCase">
-                          <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                            <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
                               <thead>
                               <tr>
                                   <th><strong>STATION ID</strong></th>
@@ -502,16 +514,16 @@
                               </tr>
                               </thead>
                               <tbody> 
-                              <tr ng-repeat="stn in stations">
-                                  <td>{{stn.stnId}}</td>
-                                  <td>{{stn.stnName}}</td>
-                                  <td>{{stn.stnBatchCode}}</td>
-                                  <td><a data-dismiss="modal" data-toggle="modal" href="#editStationWarlock" ng-click="getEditStation(stn.stnId)"><button>Update</button></a>
-                                      <a data-dismiss="modal" data-toggle="modal" href="#removeStationWarlock" ng-click="getEditStation(stn.stnId)"><button>Remove</button></a>
-                                  </td>
-                              </tr>
+                                <tr ng-repeat="stn in stations">
+                                    <td>{{stn.stnId}}</td>
+                                    <td>{{stn.stnName}}</td>
+                                    <td>{{stn.stnBatchCode}}</td>
+                                    <td><a data-dismiss="modal" data-toggle="modal" href="#editStationWarlock" ng-click="getEditStation(stn.stnId)"><button>Update</button></a>
+                                        <a data-dismiss="modal" data-toggle="modal" href="#removeStationWarlock" ng-click="getEditStation(stn.stnId)"><button>Remove</button></a>
+                                    </td>
+                                </tr>
                               </tbody>
-                          </table>
+                            </table>
                           </div>
                          
                           </div>
@@ -527,7 +539,7 @@
                        
              
               <div class="modal-footer">
-                  <button type="button" class="btn btn-default" ng-click="closeShowusers()" data-dismiss="modal" >Close</button>
+                  <button type="button" class="btn btn-default" ng-click="closeShowusers();clearAlerts()" data-dismiss="modal" >Close</button>
               </div>
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
@@ -539,7 +551,7 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clearAlerts()">X</button>
                   <h3 class="modal-title" id="panelLabel">Add Station</h3>
               </div>
               <div class="modal-body">
@@ -604,8 +616,8 @@
                           </div>
                           <div class="panel-footer">
                             <button type="button" class="btn btn-primary" id="addStation" ng-click="addStation()">Add Station</button>
-                            <button type="button" class="btn btn-warning" ng-click="clearNewStation">Clear</button>
-                            <button type="button" class="btn btn-success" id="back" data-dismiss="modal" data-toggle="modal" ng-click="showStations()" data-target="#showStationsWarlock" >Back</button>
+                            <button type="button" class="btn btn-warning" ng-click="clearNewStation;clearAlerts()">Clear</button>
+                            <button type="button" class="btn btn-success" id="back" data-dismiss="modal" data-toggle="modal" ng-click="showStations();clearAlerts()" data-target="#showStationsWarlock" >Back</button>
                           </div>
                         </div><!-- END PANEL -->
                       </div><!-- END COLUMN -->
@@ -613,7 +625,7 @@
                   </div><!-- CONTAINER -->
               </div> <!-- END MODAL BODY -->
               <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
               </div>
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
@@ -624,7 +636,7 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeSetParams()">X</button>
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeSetParams();clearAlerts()">X</button>
                   <h3 class="modal-title" id="panelLabel">SYSTEM PARAMETERS</h3>
               </div>
               <div class="modal-body">
@@ -638,6 +650,21 @@
                             <h3 class="panel-title">CONFIGURE TERMINAL<span class="glyphicon glyphicon-user"></h3>
                           </div>
                           <div class="panel-body">
+
+                            <!-- ERROR MESSAGE DIV FOR SET STATION PARAMS -->
+                            <div class="alert alert-danger alert-dismissable" ng-if="paramsSetError" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Error:</strong><br>
+                              <span>{{paramsSetErrorMsg}}<br></span>
+                            </div>
+
+                            <!-- SUCCESS MESSAGE DIV FOR SET STATION PARAMS-->
+                            <div class="alert alert-success alert-dismissable" ng-if="paramsSet" >
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong>Success:</strong>
+                                <span>{{paramsSetMsg}}<br></span>
+                            </div>
+
                             <form class="form-horizontal" role="form">
                               <div class="form-group">
                                 <label for="stnNum" class="col-sm-4 control-label">Station Number:</label>
@@ -685,7 +712,7 @@
                        
              
               <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="closeSetParams()">Close</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="closeSetParams();clearAlerts()">Close</button>
               </div>
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
@@ -696,7 +723,7 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <button type="button" class="close" ng-click="clearAlerts()" data-dismiss="modal" aria-hidden="true">X</button>
                   <h3 class="modal-title" id="panelLabel">Edit Station</h3>
               </div>
               <div class="modal-body">
@@ -735,7 +762,7 @@
                           </div>
                           <div class="panel-footer">
                             <button type="button" class="btn btn-primary" id="updateStation" ng-click="updateStation(stnIdU)" data-dismiss="modal"  data-toggle="modal" data-target="#showStationsWarlock" >Update</button>
-                             <button type="button" class="btn btn-success" id="back" data-dismiss="modal"  data-toggle="modal" data-target="#showStationsWarlock" ng-click="showStations()">Back</button>
+                             <button type="button" class="btn btn-success" id="back" data-dismiss="modal"  data-toggle="modal" data-target="#showStationsWarlock" ng-click="showStations();clearAlerts()">Back</button>
                           </div>
                         </div><!-- END PANEL -->
                       </div><!-- END COLUMN -->
@@ -743,7 +770,7 @@
                   </div><!-- CONTAINER -->
               </div> <!-- END MODAL BODY -->
               <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
               </div>
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
@@ -754,7 +781,7 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <button type="button" class="close" ng-click="clearAlerts()" data-dismiss="modal" aria-hidden="true">X</button>
                   <h3 class="modal-title" id="panelLabel">Remove Station</h3>
               </div>
               <div class="modal-body">
@@ -772,7 +799,7 @@
                           </div>
                           <div class="panel-footer">
                             <button type="button" class="btn btn-primary" id="removestation" ng-click="removeStation(stnIdU)" data-dismiss="modal" data-toggle="modal" data-target="#showStationsWarlock" >Remove</button>
-                            <button type="button" class="btn btn-warning" id="clear" data-dismiss="modal" data-toggle="modal" data-target="#showStationsWarlock">Cancel</button>
+                            <button type="button" class="btn btn-warning" id="clear" ng-click="clearAlerts()" data-dismiss="modal" data-toggle="modal" data-target="#showStationsWarlock">Cancel</button>
                           </div>
                         </div><!-- END PANEL -->
                       </div><!-- END COLUMN -->
@@ -780,7 +807,7 @@
                   </div><!-- CONTAINER -->
               </div> <!-- END MODAL BODY -->
               <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
               </div>
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
@@ -842,7 +869,6 @@
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
   </div> <!-- END MODAL CLASS -->
-
 </div>
 
 <!-- ========================================================================================== -->
@@ -855,7 +881,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <button type="button" class="close" ng-click="showQuotes()" data-dismiss="modal" aria-hidden="true">X</button>
                 <h3 class="modal-title" id="panelLabel">Add Quotation</h3>
             </div>
             <div class="modal-body">
@@ -911,7 +937,7 @@
                 </div><!-- CONTAINER -->
             </div> <!-- END MODAL BODY -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" ng-click="showQuotes()" data-dismiss="modal">Close</button>
             </div>
         </div> <!-- END MODAL CONTENT -->
     </div> <!-- END MODAL DIALOG -->
@@ -936,28 +962,37 @@
                           <h3 class="panel-title">QUOTATIONS<span class="glyphicon glyphicon-user"></h3>
                         </div>
                         <div class="panel-body">
-                          <table id="showQuotesTbl" class="quotetable table table-striped table-bordered" cellspacing="0" width="100%">
-                            <thead>
+
+                         <div ng-controller="qTblCtrl as showCase">
+                            <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                              <thead>
+                                  <tr>
+                                    <th><strong>Quote Reference</strong></th>
+                                    <th><strong>Net Amount</strong></th>
+                                    <th><strong>Amount Per Member</strong></th>
+                                    <th><strong>Name</strong></th>
+                                  </tr>
+                              </thead>
+                           
+                              <tbody>
+                                <tr ng-repeat="quote in quotations">
+                                    <td>{{quote.Oppo_Description}}</td>
+                                    <td>{{quote.Quot_nettamt}}</td>
+                                    <td>{{quote.quot_amountpermember}}</td>
+                                    <td>{{quote.oppo_GroupCustName}}</td>
+                                </tr>
+                              </tbody>
+
+                              <tfoot>
                                 <tr>
                                   <th><strong>Quote Reference</strong></th>
                                   <th><strong>Net Amount</strong></th>
                                   <th><strong>Amount Per Member</strong></th>
                                   <th><strong>Name</strong></th>
                                 </tr>
-                            </thead>
-                         
-                            <tfoot>
-                                <tr>
-                                  <th><strong>Quote Reference</strong></th>
-                                  <th><strong>Net Amount</strong></th>
-                                  <th><strong>Amount Per Member</strong></th>
-                                  <th><strong>Name</strong></th>
-                                </tr>
-                            </tfoot>
-                         
-                            <tbody id="showQuotesTblData">
-                            </tbody>
-                          </table>
+                              </tfoot>
+                            </table>
+                          </div>
                         </div>
                          <div class="panel-footer">
                           <button type="button" class="btn btn-primary" id="addquote" data-dismiss="modal" data-toggle="modal" data-target="#addQuoteWarlock">Add New Quote</button>
@@ -967,8 +1002,7 @@
                     </div><!-- END COLUMN -->
                   </div><!-- END ROW -->
                 </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-                     
+            </div> <!-- END MODAL BODY -->                
            
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-click="closeShowCustomers()" data-dismiss="modal" >Close</button>
@@ -1027,10 +1061,6 @@
                             <tbody id="showCustTblData">
                             </tbody>
                             </table>
-                        </div>
-                         <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addCustomer" data-dismiss="modal" data-toggle="modal" data-target="#addCustomerWarlock">Add New Customer</button>
-                        
                         </div>
                       </div><!-- END PANEL -->
                     </div><!-- END COLUMN -->
@@ -1302,6 +1332,24 @@
                           <h3 class="panel-title">CASHIER<span class="glyphicon glyphicon-user"></h3>
                         </div>
                         <div class="panel-body">
+
+                        <!-- NEW CODE starts-->
+
+                        <!-- ERROR MESSAGE DIV FOR ADD USER -->
+                        <div class="alert alert-danger alert-dismissable" ng-if="hastransferCashierError" >
+                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                          <strong>Error:</strong><br>
+                          <span ng-repeat='error in addUserErrorMsgs'>{{error}}<br></span>
+                        </div>
+
+                        <!-- SUCCESS MESSAGE DIV FOR ADD USER -->
+                        <div class="alert alert-success alert-dismissable" ng-if="cashierTransfered" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success:</strong>
+                            <span>{{cashierTransferedMsg}}<br></span>
+                        </div>
+                        <!-- NEW CODE ENDS -->
+
                           <form class="form-horizontal" role="form">
                             <div class="form-group">
                               <label for="cuname" class="col-sm-4 control-label">Cashier Number:</label>
@@ -1353,7 +1401,7 @@
                         </div>
                   
                         <div class="panel-footer">
-                          <button type="button"  ng-click="transfereCashier(usernmeU)" class="btn btn-primary" id="transferecashier">Transfere</button>
+                          <button type="button"  ng-click="transfereCashier(usernmeU,transferStn)" class="btn btn-primary" id="transferecashier">Transfere</button>
                           <button type="button" id="cancel" data-dismiss="modal" ng-click="cancelCashierTransfer()" class="btn btn-warning" id="canceltransfer">Cancel</button>
                         </div>
                       </div><!-- END PANEL -->
