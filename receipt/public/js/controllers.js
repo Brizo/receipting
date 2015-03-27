@@ -1018,43 +1018,75 @@ angular.module('receipt')
 		$scope.eftStnSelected = false;
 
 		$scope.$watch('payMethSPU', function(newValue,scope) {
-			if (newValue == "Cheque"){
-				$scope.choseChequeSPU = true;
-				//$scope.resetMessagesDiv();
-			} else {$scope.choseChequeSPU = false;
-				//$scope.resetMessagesDiv();
-			};
-			$scope.recDate = Date().toString();
-		});
-
-		$scope.$watch('payMethCP', function(newValue,scope) {
-			if (newValue == "Cheque"){
-				$scope.choseChequeCP = true;
-			} else {$scope.choseChequeCP = false;};
-			$scope.recDate = Date().toString();
-		});
-
-		$scope.$watch('payMethOP', function(newValue,scope) {
-			if (newValue == "Cheque"){
-				$scope.choseChequeOP = true;
-			} else {$scope.choseChequeOP = false;};
-			$scope.recDate = Date().toString();
-		});
-
-		$scope.$watch('payMethDP', function(newValue,scope) {
-			if (newValue == "Cheque"){
-				$scope.choseChequeDP = true;
-			} else {$scope.choseChequeDP = false;};
-			$scope.recDate = Date().toString();
-		});
-
-		$scope.$watch('payMethVT', function(newValue,scope) {
-			if (newValue == "Cheque"){
-				$scope.choseChequeVT = true;
-			} else {$scope.choseChequeVT = false;};
-			$scope.recDate = Date().toString();
-		});
-		// END OF WATCHERS
+            $scope.choseChequeSPU = false;
+            $scope.choseTransferSPU = false;
+            if (newValue == "Cheque"){
+                $scope.choseChequeSPU = true;
+            } else if (newValue == "Transfer") {
+                $scope.choseTransferSPU = true;
+            }else {
+                $scope.choseChequeSPU = false;
+                $scope.choseTransferSPU = false;
+            };
+                $scope.recDate = Date().toString();
+        });
+    
+        $scope.$watch('payMethCP', function(newValue,scope) {
+            $scope.choseChequeCP = false;
+            $scope.choseTransferCP = false;
+            if (newValue == "Cheque"){
+                $scope.choseChequeCP = true;
+            } else if (newValue == "Transfer") {
+                $scope.choseTransferCP = true;
+            }else {
+                $scope.choseChequeCP = false;
+                $scope.choseTransferCP = false;
+            };
+            $scope.recDate = Date().toString();
+        });
+    
+        $scope.$watch('payMethOP', function(newValue,scope) {
+            $scope.choseChequeOP = false;
+            $scope.choseTransferOP = false;
+            if (newValue == "Cheque"){
+        	    $scope.choseChequeOP = true;
+            } else if (newValue == "Transfer") {
+                $scope.choseTransferOP = true;
+            }else {
+                $scope.choseChequeOP = false;
+                $scope.choseTransferOP = false;
+            };
+            $scope.recDate = Date().toString();
+        });
+    
+        $scope.$watch('payMethDP', function(newValue,scope) {
+            $scope.choseChequeDP = false;
+            $scope.choseTransferDP = false;
+            if (newValue == "Cheque"){
+                $scope.choseChequeDP = true;
+            } else if (newValue == "Transfer") {
+                $scope.choseTransferDP = true;
+            }else {
+                $scope.choseChequeDP = false;
+                $scope.choseTransferDP = false;
+            };
+            $scope.recDate = Date().toString();
+        });
+    
+        $scope.$watch('payMethVT', function(newValue,scope) {
+            $scope.choseChequeVT = false;
+            $scope.choseTransferVT = false;
+            if (newValue == "Cheque"){
+                $scope.choseChequeVT = true;
+            } else if (newValue == "Transfer") {
+                $scope.choseTransferVT = true;
+            }else {
+                $scope.choseChequeVT = false;
+                $scope.choseTransferVT = false;
+            };
+            $scope.recDate = Date().toString();
+        });
+        // END OF WATCHERS
 
 		// Get station and user information from service
 		$scope.currStation = manageData.getCurrStation();
@@ -1653,35 +1685,44 @@ angular.module('receipt')
 
 				var glCode = "HF008888000";
 				var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoSPU, bankCode: $scope.bankCodeSPU, drawerName: $scope.drawerNameSPU};
-				
+				var newTransfer = {bankCode: $scope.bankCodeSPU, drawerName: $scope.drawerNameSPU};
+
 				$scope.paymentMethod = $scope.payMethSPU;
 				$scope.change = $scope.changeamtSPU;
 				$scope.CUSTOMERname = $scope.custNameSPU;
 
 				if ($scope.isMultiPay) {
-					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft") {
+					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft" || $scope.payMethSPU == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch: $scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU,recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
 						payMeth:$scope.payMethSPU};
-					}else {			
+					}else if ($scope.payMethSPU == "Cheque") {			
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
 							payMeth:$scope.payMethSPU,cheQue: newCheque };
+					} else if ($scope.payMethSPU == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
+							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
+							payMeth:$scope.payMethSPU,transfer: newTransfer };
 					}
 				} else if (!$scope.isMultiPay){
-					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft") {
+					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft" || $scope.payMethSPU == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch: $scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU,recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
 						payMeth:$scope.payMethSPU};
-					}else {			
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
+					}else if ($scope.payMethSPU == "Cheque") {			
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
 							payMeth:$scope.payMethSPU,cheQue: newCheque };
+					} else if ($scope.payMethSPU == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
+							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
+							payMeth:$scope.payMethSPU,transfer: newTransfer };
 					}
 				}
 
 	            //Check if Receipt is Valid
-	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				//PRINT SPU RECEIPT
 
 			    	var balance = Number($scope.custCurrBSPU) - Number($scope.recamtSPU);
@@ -1739,13 +1780,17 @@ angular.module('receipt')
 						var glCode = "HF008888089";
 					}
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoCP, bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
+					var newTransfer = {bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
 
-					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft") {
+					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft" || $scope.payMethCP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
 							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP};
-					}else {
+					}else if ($scope.payMethCP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
 							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque};
+					} else if ($scope.payMethCP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,transfer: newTransfer };
 					}
 					// after rectype was changed to otherpayments, restore it back to capital
 					recType = "capital";
@@ -1758,20 +1803,24 @@ angular.module('receipt')
 						var glCode = "HF008888089";
 					}
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoCP, bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
+					var newTransfer = {bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
 
-					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft") {
+					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft" || $scope.payMethCP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
 							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP};
-					}else {
+					}else if ($scope.payMethCP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
 							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque};
+					} else if ($scope.payMethCP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,transfer: newTransfer };
 					}
 					recType = "capital";
 				}
 
 
 	            //Check if Receipt is Valid
-	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				capRec = [
 				  '<body>',
 	              '<table>',
@@ -1820,29 +1869,33 @@ angular.module('receipt')
 				$scope.CUSTOMERname = $scope.custNameOther;
 				
 				if ($scope.isMultiPay) {			
-					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoOP, bankCode: $scope.bankCodeOP, drawerName: $scope.drawerNameOP};
 
-					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft") {
+					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft" || $scope.payMethOP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther, glCode: $scope.glCodeOP, 
 							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP};
-					}else {
+					}else if ($scope.payMethOP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
 							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP, cheQue: newCheque};
+					} else if ($scope.payMethOP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP,transfer: newTransfer };
 					}
 				} else if (!$scope.isMultiPay) {
-					var newCheque = {batchId:$scope.currUserBatch,chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoOP, bankCode: $scope.bankCodeOP, drawerName: $scope.drawerNameOP};
 
-					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft") {
+					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft" || $scope.payMethOP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther, glCode: $scope.glCodeOP, 
 							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP};
-					}else {
+					}else if ($scope.payMethOP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
 							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP, cheQue: newCheque};
+					} else if ($scope.payMethOP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP,transfer: newTransfer };
 					}
 				}
 
 	                //Check if Receipt is Valid
-	                if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "Cheque"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	                if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				//PRINT OTHER PAYMENTS RECEIPT
 				opRec = [
 				  	'<body>',
@@ -1891,29 +1944,37 @@ angular.module('receipt')
 				if ($scope.isMultiPay) {
 					var glCode = "HF008888089";
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNospu: $scope.chequeNoVT, bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
-					
-					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft") {
+					var newTransfer = {bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
+
+					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft" || $scope.payMethVT == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
 							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT};
-					}else {
+					}else if ($scope.payMethVT == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
 							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,cheQue: newCheque};
+					} else if ($scope.payMethVT == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,transfer: newTransfer };
 					}
 				} else if (!$scope.isMultiPay) {
 					var glCode = "HF008888089";
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNospu: $scope.chequeNoVT, bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
-					
-					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft") {
+					var newTransfer = {bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
+
+					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft" || $scope.payMethVT == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
 							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT};
-					}else {
+					}else if ($scope.payMethVT == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
 							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,cheQue: newCheque};
+					} else if ($scope.payMethVT == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,transfer: newTransfer };
 					}
 				}
 
-	                //Check if Receipt is Valid
-	                if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            //Check if Receipt is Valid
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				//PRINT VISIT RECEIPT
 				vtRec = [
 				  	'<body>',
@@ -1961,29 +2022,37 @@ angular.module('receipt')
 				if ($scope.isMultiPay) {
 					var glCode = "HF008888012";
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoDP, bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
+					var newTransfer = {bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
 
-					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft") {
+					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft" || $scope.payMethDP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName:$scope.custNameDP, 
 							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP};
-					}else {
+					}else if ($scope.payMethDP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName: $scope.custNameDP, 
 							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,cheQue: newCheque};
+					} else if ($scope.payMethDP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,transfer: newTransfer };
 					}
 				} else if (!$scope.isMultiPay) {
 					var glCode = "HF008888012";
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoDP, bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
+					var newTransfer = {bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
 
-					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft") {
+					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft" || $scope.payMethDP == "Speedpoint") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName:$scope.custNameDP, 
 							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP};
-					}else {
+					}else if ($scope.payMethDP == "Cheque") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName: $scope.custNameDP, 
 							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,cheQue: newCheque};
+					} else if ($scope.payMethDP == "Transfer") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName: $scope.custNameDP, 
+							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,transfer: newTransfer };
 					}
 				}
 
-	                //Check if Receipt is Valid
-	                if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            //Check if Receipt is Valid
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				//PRINT DEPOSIT RECEIPT
 				depRec = [
 				  '<body>',

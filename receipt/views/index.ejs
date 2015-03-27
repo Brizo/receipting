@@ -428,11 +428,14 @@
                                                   <option value="--Select--">--Select--</option>
                                                   <option value="Cash">Cash</option>
                                                   <option value="Cheque">Cheque</option>
+                                                  <option value="Speedpoint">Speedpoint</option>
+                                                  <option value="Transfer">Transfer</option>
                                                 </select>
                                                   <!--  <input type="text" ng-disabled= "isMultiPay" ng-show="isMultiPay" class="form-control" id="payMeth" ng-model="payMethSPU">-->
                                               </div>                              
                                             </div>                                      
-                                            <% include chequeTemplateSPU %>                                           
+                                            <% include chequeTemplateSPU %>  
+                                            <% include transferTemplateSPU %>                                        
                                           </form>
                                         </div>
                                       </div>
@@ -552,13 +555,16 @@
                                                   <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
                                                   <div class="col-sm-6">
                                                     <select class="form-control" id="payMethCP" ng-model="payMethCP" ng-disabled= "isMultiPay" ng-change="getDate()">
-                                                      <option>--Select--</option>
-                                                      <option>Cash</option>
-                                                      <option>Cheque</option>
+                                                      <option value="--Select--">--Select--</option>
+                                                      <option value="Cash">Cash</option>
+                                                      <option value="Cheque">Cheque</option>
+                                                      <option value="Speedpoint">Speedpoint</option>
+                                                      <option value="Transfer">Transfer</option>
                                                     </select>
                                                   </div>
                                                 </div>
                                                 <% include chequeTemplateCP %>
+                                                <% include transferTemplateCP %>
                                             </form>
                                           </div><!-- END PANEL BODY -->
                                         </div><!-- END PANEL -->
@@ -696,13 +702,16 @@
                                               <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
                                               <div class="col-sm-6">
                                                 <select class="form-control" id="payMethDP" ng-disabled= "isMultiPay" ng-model="payMethDP">
-                                                  <option>--Select--</option>
-                                                  <option>Cash</option>
-                                                  <option>Cheque</option>
+                                                  <option value="--Select--">--Select--</option>
+                                                  <option value="Cash">Cash</option>
+                                                  <option value="Cheque">Cheque</option>
+                                                  <option value="Speedpoint">Speedpoint</option>
+                                                  <option value="Transfer">Transfer</option>
                                                 </select>
                                               </div>
                                             </div>
                                             <% include chequeTemplateDP %>
+                                            <% include transferTemplateDP %>
                                           </form>
                                         </div>
                                       </div>
@@ -808,10 +817,17 @@
                                             <div class="form-group">
                                               <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
                                               <div class="col-sm-6">
-                                                <select class="form-control" id="payMethVT" ng-disabled= "isMultiPay" ng-model="payMethVT"><option>--Select--</option><option>Cash</option><option>Cheque</option></select>
+                                                <select class="form-control" id="payMethVT" ng-disabled= "isMultiPay" ng-model="payMethVT">
+                                                  <option value="--Select--">--Select--</option>
+                                                  <option value="Cash">Cash</option>
+                                                  <option value="Cheque">Cheque</option>
+                                                  <option value="Speedpoint">Speedpoint</option>
+                                                  <option value="Transfer">Transfer</option>
+                                                </select>
                                               </div>
                                             </div>
                                             <% include chequeTemplateVT %>
+                                            <% include transferTemplateDP %>
                                           </form>
                                         </div><!-- END PANEL BODY -->
                                       </div><!-- END PANEL -->
@@ -909,38 +925,43 @@
                                             </div>
                                             <div class="form-group" ng-show="newGLBox">
                                               <label for="newGlCode" class="col-sm-4 control-label">New GL Code:</label><button type="button" class="btn btn-primary" id="closeNewGLBox" ng-click="closeNewGLBox()" >Back</button>
-                                            <div class="col-sm-6">
+                                              <div class="col-sm-6">
                                               <input type="text" class="form-control" id="newGlCode" placeholder="H00000000" ng-model="glCodeOP2">
+                                              </div>
                                             </div>
-                                          </div>
-                                          <div class="form-group" ng-show="newGLBox">
-                                            <label for="glCodeDesc" class="col-sm-4 control-label">GL Code Description:</label>
-                                            <div class="col-sm-6">
-                                              <input type="text" class="form-control" id="newGlCode" placeholder="Description" ng-model="glCodeDesc">
+                                            <div class="form-group" ng-show="newGLBox">
+                                              <label for="glCodeDesc" class="col-sm-4 control-label">GL Code Description:</label>
+                                              <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="newGlCode" placeholder="Description" ng-model="glCodeDesc">
+                                              </div>
                                             </div>
-                                          </div>
-                                          <div class="form-group">
-                                            <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
-                                            <div class="col-sm-6">
-                                              <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
+                                            <div class="form-group">
+                                              <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
+                                              <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
+                                              </div>
                                             </div>
-                                          </div>
-                                          <div class="form-group">
-                                            <label for="optend" class="col-sm-4 control-label">Tendered:</label>
-                                            <div class="col-sm-6">
-                                              <input type="text" class="form-control" id="optend" placeholder="E 0.0" ng-disabled= "isMultiPay" ng-model="tendamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
-                                              <input type="hidden" class="form-control" id="rectypeOP" ng-model="recTypeOP" ng-init="recTypeOP='otherPayments'">
+                                            <div class="form-group">
+                                              <label for="optend" class="col-sm-4 control-label">Tendered:</label>
+                                              <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="optend" placeholder="E 0.0" ng-disabled= "isMultiPay" ng-model="tendamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
+                                                <input type="hidden" class="form-control" id="rectypeOP" ng-model="recTypeOP" ng-init="recTypeOP='otherPayments'">
+                                              </div>
                                             </div>
-                                          </div>
-                                          <div class="form-group">
-                                            <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
-                                            <div class="col-sm-6">
-                                              <select class="form-control" id="payMeth" ng-disabled= "isMultiPay" ng-model="payMethOP">
-                                                <option>--Select--</option>
-                                                <option>Cash</option><option>Cheque</option></select>
+                                            <div class="form-group">
+                                              <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
+                                              <div class="col-sm-6">
+                                                <select class="form-control" id="payMeth" ng-disabled= "isMultiPay" ng-model="payMethOP">
+                                                  <option value="--Select--">--Select--</option>
+                                                  <option value="Cash">Cash</option>
+                                                  <option value="Cheque">Cheque</option>
+                                                  <option value="Speedpoint">Speedpoint</option>
+                                                  <option value="Transfer">Transfer</option>
+                                                </select>
                                               </div>
                                             </div>
                                             <% include chequeTemplateOP %>
+                                            <% include transferTemplateOP %>
                                           </form>
                                         </div>
                                       </div>
