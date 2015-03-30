@@ -96,7 +96,7 @@
                                 <input type="checkbox" class="form-control" id="roleCashier" ng-model="cashierrole">
                               </div>
                             </div>
-                             <div class="form-group">
+                            <div class="form-group">
                               <label for="roleEftu" class="col-sm-4 control-label">EFT Upload</label>
                               <div class="col-sm-2">
                                 <input type="checkbox" class="form-control" id="roleEftu" ng-model="efturole">
@@ -111,7 +111,7 @@
                           </form>
                         </div>
                         <div class="panel-footer">
-                          <button type="button" ng-disabled="!loginForm.$valid" class="btn btn-primary" id="validate" ng-click="validate();getIncVals()" data-dismiss="modal">Login</button>
+                          <button type="button" ng-disabled="!loginForm.$valid" class="btn btn-primary" id="validate" ng-click="authenticate();getIncVals()" data-dismiss="modal">Login</button>
                           <button type="button" class="btn btn-warning" ng-click="clearLogin()">Clear</button>
                         </div>
                       </div><!-- END PANEL -->
@@ -129,339 +129,349 @@
 <!-- ************************************************************************************** -->
 
 <div ng-controller="manageUsers">
-<!--ADD USER-->
-<div class="modal fade" id="addUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" ng-click="clearAlerts()" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Add User</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-6 col-lg-offset-3'>
+  <!--ADD USER-->
+  <div class="modal fade" id="addUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" ng-click="clearAlerts()" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Add User</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-6 col-lg-offset-3'>
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Add User Details<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-
-                        <!-- NEW CODE starts-->
-
-                        <!-- ERROR MESSAGE DIV FOR ADD USER -->
-                        <div class="alert alert-danger alert-dismissable" ng-if="hasAdduserError" >
-                          <button type="button" class="close" data-dismiss="alert">&times;</button>
-                          <strong>Error:</strong><br>
-                          <span ng-repeat='error in addUserErrorMsgs'>{{error}}<br></span>
-                        </div>
-
-                        <!-- SUCCESS MESSAGE DIV FOR ADD USER -->
-                        <div class="alert alert-success alert-dismissable" ng-if="userInserted" >
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
-                            <span>{{userInsertedMsg}}<br></span>
-                        </div>
-                        <!-- NEW CODE ENDS -->
-
-                          <form class="form-horizontal" role="form" name="addUserForm" novalidate>
-                            <div class="form-group">
-                              <label for="usernme" class="col-sm-4 control-label">Username:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="usernme" placeholder="SEC0000" ng-model="usernme" ng-blur="getUser(usernme)">
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="userpass" class="col-sm-4 control-label">Password:</label>
-                              <div class="col-sm-6">
-                                <input type="password" class="form-control" id="userpas" placeholder="Password" ng-model="userpss">
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="userpass2" class="col-sm-4 control-label">Repeat Password:</label>
-                              <div class="col-sm-6">
-                                <input type="password" class="form-control" id="userpass2" placeholder="Repeat Password" ng-model="userpss2" >
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="firstname" class="col-sm-4 control-label">First Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="firstname" placeholder="First Name" ng-model="firstname" >
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="lastname" class="col-sm-4 control-label">Last Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="lastname" placeholder="Last Name" ng-model="lastname">
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="lastname" class="col-sm-4 control-label">Station Number:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="stnNum" placeholder="Station" ng-model="stnNum">      </div>
-                            </div>
-
-                            <div class="form-group">
-                              <div class="col-sm-4 col-sm-offset-4 ">
-                                <u>User Role</u>
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <div class="col-sm-3">
-                                 <label for="adminRole" class="checkbox-inline ">
-                                  <input type="checkbox" id="adminRole" ng-model="adminRole">Admin
-                                </label>
-                              </div>  
-                              <div class="col-sm-3">                             
-                              <label for="roleSup" class="checkbox-inline ">                         
-                                <input type="checkbox" id="supRole" ng-model="supRole">Supervisor 
-                              </label>
-                            </div>
-                                <div class="col-sm-3">
-                                  <label for="cashierRole" class="checkbox-inline ">
-                                    <input type="checkbox"  id="cashierRole" ng-model="cashierRole">Cashier
-                                  </label>
-                                </div>
-                                <div class="col-sm-3">
-                                  <label for="reportRole" class="checkbox-inline">                                 
-                                    <input type="checkbox"  id="reportRole" ng-model="reportRole">Report 
-                                  </label>
-                                </div>
-                                 <div class="col-sm-3">
-                                  <label for="eftuRole" class="checkbox-inline">                                 
-                                    <input type="checkbox"  id="eftuRole" ng-model="eftuRole">EFT Upload 
-                                  </label>
-                                </div>
-                            </div>
-
-                          </form>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addUser" ng-click="addUser()" >Add New User</button>
-                          <button type="button" class="btn btn-warning" id="clear" ng-click="clearNewUser()">Clear</button>
-                          <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers();clearAlerts()">Back</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
-
-<!--EDIT USER-->
-<div class="modal fade" id="editUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Edit User</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-4 col-lg-offset-4'>
-
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Edit User Details<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-
-                          <form class="form-horizontal" role="form">
-                            <div class="form-group">
-                              <label for="usernme" class="col-sm-4 control-label">Username:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="usernme"  ng-model="usernmeU" ng-readonly="true">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="userpass" class="col-sm-4 control-label">Password:</label>
-                              <div class="col-sm-6">
-                                <input type="password" class="form-control" id="userpas" ng-model="userpssU">
-                              </div>
-                            </div>
-                             <div class="form-group">
-                              <label for="firstname" class="col-sm-4 control-label">First Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="firstname" ng-model="firstnameU">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="lastname" class="col-sm-4 control-label">Last Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="lastname"  ng-model="lastnameU">
-                              </div>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="adminRole" class="col-sm-4 control-label">Admin</label>
-                              <div class="col-sm-2">
-                                <input type="checkbox" class="form-control" id="adminRole" ng-model="adminRoleU">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="roleSup" class="col-sm-4 control-label">Supervisor</label>
-                              <div class="col-sm-2">
-                                <input type="checkbox" class="form-control" id="roleSup" ng-model="roleSupU">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="cashierRole" class="col-sm-4 control-label">Cashier</label>
-                              <div class="col-sm-2">
-                                <input type="checkbox" class="form-control" id="cashierRole" ng-model="cashierRoleU">
-                              </div>
-                            </div>
-                             <div class="form-group">
-                              <label for="reportRole" class="col-sm-4 control-label">Report</label>
-                              <div class="col-sm-2">
-                                <input type="checkbox" class="form-control" id="reportRole" ng-model="reproleU">
-                              </div>
-                            </div>
-
-                          </form>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="updateUser" ng-click="updateUser(usernmeU)" data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" >Update</button>
-                           <button type="button" class="btn btn-success" id="back" data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers()">Back</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
-
-<!--DELETE USER-->
-<div class="modal fade" id="removeUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Remove User</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-6 col-lg-offset-3'>
-
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Remove<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-                          <p>Are you sure you want want to remove User : <b>{{firstnameU}} - {{lastnameU}}</b></p>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="removeuser" ng-click="removeUser(usernmeU)" data-dismiss="modal" data-toggle="modal" data-target="#showUsersWarlock">Remove</button>
-                          <button type="button" class="btn btn-warning" id="clear" data-dismiss="modal" data-toggle="modal" data-target="#showUsersWarlock">Cancel</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
-
-<!--SHOW USERS-->
-<div class="modal fade" id="showUsersWarlock" tabindex="-1" role="dialog"  aria-labelledby="panelLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" ng-click="clearAlerts()" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">ALL USERS</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-8 col-lg-offset-2'>
-
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">USERS<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-
-                          <!-- SUCCESS MESSAGE DIV FOR DELETION -->
-                          <div class="alert alert-success alert-dismissable" ng-if="userRemoved" >
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
-                            <span>{{userRemoveMsg}}<br></span>
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Add User Details<span class="glyphicon glyphicon-user"></h3>
                           </div>
-                          <!-- SUCCESS MESSAGE DIV FOR updating -->
-                          <div class="alert alert-success alert-dismissable" ng-if="userUpdated" >
+                          <div class="panel-body">
+
+                          <!-- NEW CODE starts-->
+
+                          <!-- ERROR MESSAGE DIV FOR ADD USER -->
+                          <div class="alert alert-danger alert-dismissable" ng-if="hasAdduserError" >
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
-                            <span>{{userUpdatedMsg}}<br></span>
+                            <strong>Error:</strong><br>
+                            <span ng-repeat='error in addUserErrorMsgs'>{{error}}<br></span>
                           </div>
 
-                      <div ng-controller="usersTblCtrl as showCase">
-                        <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
-                            <thead>
-                            <tr>
-                                <th>User Name</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Station</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="user in users">
-                                <td>{{ user.uname }}</td>
-                                <td>{{ user.firstname }}</td>
-                                <td>{{ user.lastname }}</td>
-                                <td>{{ user.station }}</td>
-                                <td><a data-dismiss="modal" data-toggle="modal" href="#editUserWarlock" ng-click="getUser(user.uname)"><button>Update</button></a>
-                                    <a data-dismiss="modal" data-toggle="modal" href="#removeUserWarlock" ng-click="getUser(user.uname)"><button>Remove</button></a>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        </div>
+                          <!-- SUCCESS MESSAGE DIV FOR ADD USER -->
+                          <div class="alert alert-success alert-dismissable" ng-if="userInserted" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success:</strong>
+                              <span>{{userInsertedMsg}}<br></span>
+                          </div>
+                          <!-- NEW CODE ENDS -->
 
-                        </div>
-                         <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addUser" data-dismiss="modal" data-toggle="modal" data-target="#addUserWarlock" data-backdrop="static">Add User</button>
-                        
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-                     
-           
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="closeShowusers();clearAlerts()" data-dismiss="modal" >Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
+                            <form class="form-horizontal" role="form" name="addUserForm" novalidate>
+                              <div class="form-group">
+                                <label for="usernme" class="col-sm-4 control-label">Username:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="usernme" placeholder="SEC0000" ng-model="usernme" ng-blur="getUser(usernme)">
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="userpass" class="col-sm-4 control-label">Password:</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="userpas" placeholder="Password" ng-model="userpss">
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="userpass2" class="col-sm-4 control-label">Repeat Password:</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="userpass2" placeholder="Repeat Password" ng-model="userpss2" >
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="firstname" class="col-sm-4 control-label">First Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="firstname" placeholder="First Name" ng-model="firstname" >
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="lastname" class="col-sm-4 control-label">Last Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="lastname" placeholder="Last Name" ng-model="lastname">
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="lastname" class="col-sm-4 control-label">Station Number:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="stnNum" placeholder="Station" ng-model="stnNum">      </div>
+                              </div>
+
+                              <div class="form-group">
+                                <div class="col-sm-4 col-sm-offset-4 ">
+                                  <u>User Roles</u>
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="roleAdmin" class="col-sm-4 control-label">Admin</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="roleAdmin" ng-model="adminRole">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="supRole" class="col-sm-4 control-label">Sup</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="supRole" ng-model="supRole">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="eftuRole" class="col-sm-4 control-label">EFT</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="eftuRole" ng-model="eftuRole">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="cashierRole" class="col-sm-4 control-label">Cashier</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="cashierRole" ng-model="cashierRole">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="reportRole" class="col-sm-4 control-label">Report</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="reportRole" ng-model="reportRole">
+                                </div>
+                              </div>
+
+                            </form>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="addUser" ng-click="addUser()" >Add New User</button>
+                            <button type="button" class="btn btn-warning" id="clear" ng-click="clearNewUser()">Clear</button>
+                            <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers();clearAlerts()">Back</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" ng-click="clearAlerts()" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
+
+  <!--EDIT USER-->
+  <div class="modal fade" id="editUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Edit User</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-4 col-lg-offset-4'>
+
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Edit User Details<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
+
+                            <form class="form-horizontal" role="form">
+                              <div class="form-group">
+                                <label for="usernme" class="col-sm-4 control-label">Username:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="usernme"  ng-model="usernmeU" ng-readonly="true">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="userpass" class="col-sm-4 control-label">Password:</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="userpas" ng-model="userpssU">
+                                </div>
+                              </div>
+                               <div class="form-group">
+                                <label for="firstname" class="col-sm-4 control-label">First Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="firstname" ng-model="firstnameU">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="lastname" class="col-sm-4 control-label">Last Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="lastname"  ng-model="lastnameU">
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="adminRole" class="col-sm-4 control-label">Admin</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="adminRole" ng-model="adminRoleU">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="roleSup" class="col-sm-4 control-label">Supervisor</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="roleSup" ng-model="roleSupU">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="roleEftuU" class="col-sm-4 control-label">EFT Upload</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="roleEftuU" ng-model="efturoleU">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="cashierRole" class="col-sm-4 control-label">Cashier</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="cashierRole" ng-model="cashierRoleU">
+                                </div>
+                              </div>
+                               <div class="form-group">
+                                <label for="reportRole" class="col-sm-4 control-label">Report</label>
+                                <div class="col-sm-2">
+                                  <input type="checkbox" class="form-control" id="reportRole" ng-model="reproleU">
+                                </div>
+                              </div>
+
+                            </form>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="updateUser" ng-click="updateUser(usernmeU)" data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" >Update</button>
+                             <button type="button" class="btn btn-success" id="back" data-dismiss="modal"  data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers()">Back</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
+
+  <!--DELETE USER-->
+  <div class="modal fade" id="removeUserWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Remove User</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-6 col-lg-offset-3'>
+
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Remove<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
+                            <p>Are you sure you want want to remove User : <b>{{firstnameU}} - {{lastnameU}}</b></p>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="removeuser" ng-click="removeUser(usernmeU)" data-dismiss="modal" data-toggle="modal" data-target="#showUsersWarlock">Remove</button>
+                            <button type="button" class="btn btn-warning" id="clear" data-dismiss="modal" data-toggle="modal" data-target="#showUsersWarlock">Cancel</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
+
+  <!--SHOW USERS-->
+  <div class="modal fade" id="showUsersWarlock" tabindex="-1" role="dialog"  aria-labelledby="panelLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" ng-click="clearAlerts()" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">ALL USERS</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-8 col-lg-offset-2'>
+
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">USERS<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
+
+                            <!-- SUCCESS MESSAGE DIV FOR DELETION -->
+                            <div class="alert alert-success alert-dismissable" ng-if="userRemoved" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success:</strong>
+                              <span>{{userRemoveMsg}}<br></span>
+                            </div>
+                            <!-- SUCCESS MESSAGE DIV FOR updating -->
+                            <div class="alert alert-success alert-dismissable" ng-if="userUpdated" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success:</strong>
+                              <span>{{userUpdatedMsg}}<br></span>
+                            </div>
+
+                        <div ng-controller="usersTblCtrl as showCase">
+                          <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                              <thead>
+                              <tr>
+                                  <th>User Name</th>
+                                  <th>First Name</th>
+                                  <th>Last Name</th>
+                                  <th>Station</th>
+                                  <th>Action</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr ng-repeat="user in users">
+                                  <td>{{ user.uname }}</td>
+                                  <td>{{ user.firstname }}</td>
+                                  <td>{{ user.lastname }}</td>
+                                  <td>{{ user.station }}</td>
+                                  <td><a data-dismiss="modal" data-toggle="modal" href="#editUserWarlock" ng-click="getUser(user.uname)"><button>Update</button></a>
+                                      <a data-dismiss="modal" data-toggle="modal" href="#removeUserWarlock" ng-click="getUser(user.uname)"><button>Remove</button></a>
+                                  </td>
+                              </tr>
+                              </tbody>
+                          </table>
+                          </div>
+
+                          </div>
+                           <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="addUser" data-dismiss="modal" data-toggle="modal" data-target="#addUserWarlock" data-backdrop="static">Add User</button>
+                          
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+                       
+             
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" ng-click="closeShowusers();clearAlerts()" data-dismiss="modal" >Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 
 </div>
 
@@ -544,7 +554,6 @@
           </div> <!-- END MODAL CONTENT -->
       </div> <!-- END MODAL DIALOG -->
   </div> <!-- END MODAL CLASS -->
-
 
   <!--ADD STATION-->
   <div class="modal fade"  id="addStationWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
@@ -741,8 +750,7 @@
                               <div class="form-group">
                                 <label for="stnIdU" class="col-sm-4 control-label">Station Id:</label>
                                 <div class="col-sm-6">  
-                                  <input type="text" class="form-control" id="stnIdU" ng-model="stnIdU">
-                                
+                                  <input type="text" class="form-control" id="stnIdU" ng-model="stnIdU" ng-readonly="true">
                                 </div>
                               </div>
                               <div class="form-group">
@@ -875,142 +883,140 @@
 <!-- QUOTATIONS -->
 
 <div ng-controller="quotationCtrl" >
+  <!-- ADD QUOTATION -->
+  <div class="modal fade"  id="addQuoteWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" ng-click="showQuotes()" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Add Quotation</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-8 col-lg-offset-2'>
 
-<!-- ADD QUOTATION -->
-<div class="modal fade"  id="addQuoteWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" ng-click="showQuotes()" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Add Quotation</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-8 col-lg-offset-2'>
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Add Quotation Details<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Add Quotation Details<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-
-                          <!-- ERROR MESSAGE DIV FOR ADD QUOTATION -->
-                        <div class="alert alert-danger alert-dismissable" ng-if="hasAddQuoteError" >
-                          <button type="button" class="close" data-dismiss="alert">&times;</button>
-                          <strong>Error:</strong><br>
-                          <span ng-repeat='error in addQuoteErrorMsgs'>{{error}}<br></span>
-                        </div>
-
-                        <!-- SUCCESS MESSAGE DIV FOR ADD ADD QUOTATION -->
-                        <div class="alert alert-success alert-dismissable" ng-if="quoteInserted" >
+                            <!-- ERROR MESSAGE DIV FOR ADD QUOTATION -->
+                          <div class="alert alert-danger alert-dismissable" ng-if="hasAddQuoteError" >
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
-                            <span>{{quoteInsertedMsg}}<br></span>
-                        </div>
+                            <strong>Error:</strong><br>
+                            <span ng-repeat='error in addQuoteErrorMsgs'>{{error}}<br></span>
+                          </div>
 
-                          <form class="form-horizontal" role="form">
-                            <div class="form-group">
-                              <label for="qReference" class="col-sm-4 control-label">Quote Ref</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="qReference" placeholder="Enter Quote Ref" ng-model="qReference">
+                          <!-- SUCCESS MESSAGE DIV FOR ADD ADD QUOTATION -->
+                          <div class="alert alert-success alert-dismissable" ng-if="quoteInserted" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success:</strong>
+                              <span>{{quoteInsertedMsg}}<br></span>
+                          </div>
+
+                            <form class="form-horizontal" role="form">
+                              <div class="form-group">
+                                <label for="qReference" class="col-sm-4 control-label">Quote Ref</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="qReference" placeholder="Enter Quote Ref" ng-model="qReference">
+                                </div>
                               </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="qCustGroupName" class="col-sm-4 control-label">Quotation Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="qCustGroupName" placeholder="Quotation Name" ng-model="qCustGroupName">
+                              <div class="form-group">
+                                <label for="qCustGroupName" class="col-sm-4 control-label">Quotation Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="qCustGroupName" placeholder="Quotation Name" ng-model="qCustGroupName">
+                                </div>
                               </div>
-                            </div>
 
-                          </form>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addquote" ng-click="addQuote()">Add Quote</button>
-                          <button type="button" class="btn btn-warning" ng-click="clearNewQuote()">Clear</button>
-                          <button type="button" class="btn btn-success" id="back" data-dismiss="modal" data-toggle="modal" ng-click="showQuotes()" data-target="#showQuotesWarlock" >Back</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="showQuotes()" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
+                            </form>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="addquote" ng-click="addQuote()">Add Quote</button>
+                            <button type="button" class="btn btn-warning" ng-click="clearNewQuote()">Clear</button>
+                            <button type="button" class="btn btn-success" id="back" data-dismiss="modal" data-toggle="modal" ng-click="showQuotes()" data-target="#showQuotesWarlock" >Back</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" ng-click="showQuotes()" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 
-<!-- SHOW QUOTATIONS -->
-<div class="modal fade" id="showQuotesWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">ALL QUOTATIONS</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-12'>
+  <!-- SHOW QUOTATIONS -->
+  <div class="modal fade" id="showQuotesWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">ALL QUOTATIONS</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-12'>
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">QUOTATIONS<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">QUOTATIONS<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
 
-                         <div ng-controller="qTblCtrl as showCase">
-                            <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
-                              <thead>
+                           <div ng-controller="qTblCtrl as showCase">
+                              <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                                <thead>
+                                    <tr>
+                                      <th><strong>Quote Reference</strong></th>
+                                      <th><strong>Net Amount</strong></th>
+                                      <th><strong>Amount Per Member</strong></th>
+                                      <th><strong>Name</strong></th>
+                                    </tr>
+                                </thead>
+                             
+                                <tbody>
+                                  <tr ng-repeat="quote in quotations">
+                                      <td>{{quote.Oppo_Description}}</td>
+                                      <td>{{quote.Quot_nettamt}}</td>
+                                      <td>{{quote.quot_amountpermember}}</td>
+                                      <td>{{quote.oppo_GroupCustName}}</td>
+                                  </tr>
+                                </tbody>
+
+                                <tfoot>
                                   <tr>
                                     <th><strong>Quote Reference</strong></th>
                                     <th><strong>Net Amount</strong></th>
                                     <th><strong>Amount Per Member</strong></th>
                                     <th><strong>Name</strong></th>
                                   </tr>
-                              </thead>
-                           
-                              <tbody>
-                                <tr ng-repeat="quote in quotations">
-                                    <td>{{quote.Oppo_Description}}</td>
-                                    <td>{{quote.Quot_nettamt}}</td>
-                                    <td>{{quote.quot_amountpermember}}</td>
-                                    <td>{{quote.oppo_GroupCustName}}</td>
-                                </tr>
-                              </tbody>
-
-                              <tfoot>
-                                <tr>
-                                  <th><strong>Quote Reference</strong></th>
-                                  <th><strong>Net Amount</strong></th>
-                                  <th><strong>Amount Per Member</strong></th>
-                                  <th><strong>Name</strong></th>
-                                </tr>
-                              </tfoot>
-                            </table>
+                                </tfoot>
+                              </table>
+                            </div>
                           </div>
-                        </div>
-                         <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addquote" data-dismiss="modal" data-toggle="modal" data-target="#addQuoteWarlock">Add New Quote</button>
-                        
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->                
-           
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="closeShowCustomers()" data-dismiss="modal" >Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
-
+                           <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="addquote" data-dismiss="modal" data-toggle="modal" data-target="#addQuoteWarlock">Add New Quote</button>
+                          
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->                
+             
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" ng-click="closeShowCustomers()" data-dismiss="modal" >Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 </div>
 
 <!-- ============================================================================================ -->
@@ -1020,231 +1026,228 @@
 
 <div ng-controller="customerCtrl" >
 
-<div class="modal fade"  id="showCustomersWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">ALL CUSTOMERS</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-12'>
+  <div class="modal fade"  id="showCustomersWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">ALL CUSTOMERS</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-12'>
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">CUSTOMERS<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">CUSTOMERS<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
 
-                           <table id="showCustomersTbl" class="custable table table-striped table-bordered" cellspacing="0" width="100%">
-                            <thead>
-                                <tr>
-                                  <th><strong>Account NO</strong></th>
-                                  <th><strong>NAME</strong></th>
-                                  <th><strong>DEPOT_NAME</strong></th>
-                                  <th><strong>Address</strong></th>
-                                </tr>
-                            </thead>
-                         
-                            <tfoot>
-                                <tr>
-                                  <th><strong>Account NO</strong></th>
-                                  <th><strong>NAME</strong></th>
-                                  <th><strong>DEPOT_NAME</strong></th>
-                                  <th><strong>Address</strong></th>
-                                </tr>
-                            </tfoot>
-                         
-                            <tbody id="showCustTblData">
-                            </tbody>
-                            </table>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-                     
-           
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" ng-click="closeShowCustomers()" data-dismiss="modal" >Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
+                             <table id="showCustomersTbl" class="custable table table-striped table-bordered" cellspacing="0" width="100%">
+                              <thead>
+                                  <tr>
+                                    <th><strong>Account NO</strong></th>
+                                    <th><strong>NAME</strong></th>
+                                    <th><strong>DEPOT_NAME</strong></th>
+                                    <th><strong>Address</strong></th>
+                                  </tr>
+                              </thead>
+                           
+                              <tfoot>
+                                  <tr>
+                                    <th><strong>Account NO</strong></th>
+                                    <th><strong>NAME</strong></th>
+                                    <th><strong>DEPOT_NAME</strong></th>
+                                    <th><strong>Address</strong></th>
+                                  </tr>
+                              </tfoot>
+                           
+                              <tbody id="showCustTblData">
+                              </tbody>
+                              </table>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+                       
+             
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" ng-click="closeShowCustomers()" data-dismiss="modal" >Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 
-<!-- ADD CUSTOMER -->
-<div class="modal fade" id="addCustomerWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Add Customer</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-6 col-lg-offset-3'>
+  <!-- ADD CUSTOMER -->
+  <div class="modal fade" id="addCustomerWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Add Customer</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-6 col-lg-offset-3'>
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Add Customer Details<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Add Customer Details<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
 
-                        <!-- ERROR MESSAGE DIV FOR ADD CUSTOMER -->
-                        <div class="alert alert-danger alert-dismissable" ng-if="hasAddCustomerError" >
-                          <button type="button" class="close" data-dismiss="alert">&times;</button>
-                          <strong>Error:</strong><br>
-                          <span ng-repeat='error in addCustomerErrorMsgs'>{{error}}<br></span>
-                        </div>
-
-                        <!-- SUCCESS MESSAGE DIV FOR ADD CUSTOMER -->
-                        <div class="alert alert-success alert-dismissable" ng-if="customerInserted" >
+                          <!-- ERROR MESSAGE DIV FOR ADD CUSTOMER -->
+                          <div class="alert alert-danger alert-dismissable" ng-if="hasAddCustomerError" >
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
-                            <span>{{customerInsertedMsg}}<br></span>
-                        </div>
+                            <strong>Error:</strong><br>
+                            <span ng-repeat='error in addCustomerErrorMsgs'>{{error}}<br></span>
+                          </div>
 
-                          <form class="form-horizontal" role="form">
-                            <div class="form-group">
-                              <label for="custNo" class="col-sm-4 control-label">Customer Number:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custNo" placeholder="Customer Number" ng-model="custNo">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custName" class="col-sm-4 control-label">Customer Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custName" placeholder="Customer Name" ng-model="custName">
-                              </div>
-                            </div>
-                            
-                             <div class="form-group">
-                              <label for="custAddr1" class="col-sm-4 control-label">Customer Address1:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr1" placeholder="Postal Address" ng-model="custAddr1">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custAddr2" class="col-sm-4 control-label">Customer Address2:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr2" placeholder="Customer Address2" ng-model="custAddr2">
-                              </div>
-                            </div>
+                          <!-- SUCCESS MESSAGE DIV FOR ADD CUSTOMER -->
+                          <div class="alert alert-success alert-dismissable" ng-if="customerInserted" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success:</strong>
+                              <span>{{customerInsertedMsg}}<br></span>
+                          </div>
+
+                            <form class="form-horizontal" role="form">
                               <div class="form-group">
-                              <label for="custAddr3" class="col-sm-4 control-label">Customer Address3:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr3" placeholder="Customer Address3" ng-model="custAddr3">
+                                <label for="custNo" class="col-sm-4 control-label">Customer Number:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custNo" placeholder="Customer Number" ng-model="custNo">
+                                </div>
                               </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custRef" class="col-sm-4 control-label">Reference Number:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custRef" placeholder="Reference Number" ng-model="custRef">
+                              <div class="form-group">
+                                <label for="custName" class="col-sm-4 control-label">Customer Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custName" placeholder="Customer Name" ng-model="custName">
+                                </div>
                               </div>
-                            </div>
+                              
+                               <div class="form-group">
+                                <label for="custAddr1" class="col-sm-4 control-label">Customer Address1:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr1" placeholder="Postal Address" ng-model="custAddr1">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custAddr2" class="col-sm-4 control-label">Customer Address2:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr2" placeholder="Customer Address2" ng-model="custAddr2">
+                                </div>
+                              </div>
+                                <div class="form-group">
+                                <label for="custAddr3" class="col-sm-4 control-label">Customer Address3:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr3" placeholder="Customer Address3" ng-model="custAddr3">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custRef" class="col-sm-4 control-label">Reference Number:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custRef" placeholder="Reference Number" ng-model="custRef">
+                                </div>
+                              </div>
 
-                          </form>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="addCustomer" ng-click="addCustomer()" >Add Customer</button>
-                          <button type="button" class="btn btn-warning" id="clear" ng-click="clearNewCustomer()">Clear</button>
-                          <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showCustomersWarlock" ng-click="showCustomers()">Back</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
+                            </form>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="addCustomer" ng-click="addCustomer()" >Add Customer</button>
+                            <button type="button" class="btn btn-warning" id="clear" ng-click="clearNewCustomer()">Clear</button>
+                            <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showCustomersWarlock" ng-click="showCustomers()">Back</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 
+  <!-- EDIT CUSTOMER -->
+  <div class="modal fade" id="editCustomerWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                  <h3 class="modal-title" id="panelLabel">Edit Customer</h3>
+              </div>
+              <div class="modal-body">
+                  <div class='container-fluid'>
+                    <div class='row-fluid'>
+                      <div class='col-lg-6 col-lg-offset-3'>
 
-<!-- EDIT CUSTOMER -->
-<div class="modal fade" id="editCustomerWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 class="modal-title" id="panelLabel">Edit Customer</h3>
-            </div>
-            <div class="modal-body">
-                <div class='container-fluid'>
-                  <div class='row-fluid'>
-                    <div class='col-lg-6 col-lg-offset-3'>
+                        <!-- PANEL -->
+                        <div class="panel panel-success">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Edit Customer Details<span class="glyphicon glyphicon-user"></h3>
+                          </div>
+                          <div class="panel-body">
+                            <form class="form-horizontal" role="form">
+                              <div class="form-group">
+                                <label for="custNoU" class="col-sm-4 control-label">Customer Number:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custNoU" ng-model="custNoU">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custNameU" class="col-sm-4 control-label">Customer Name:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custNameU" ng-model="custNameU">
+                                </div>
+                              </div>
+                               <div class="form-group">
+                                <label for="custAddr1U" class="col-sm-4 control-label">Postal Address:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr1U" ng-model="custAddr1U">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custAddr1U" class="col-sm-4 control-label">Town:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr1U" ng-model="custAddr2U">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custAddr3U" class="col-sm-4 control-label">Surbub:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custAddr3U" ng-model="custAddr3U">
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <label for="custRefU" class="col-sm-4 control-label">Reference Number:</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="custRefU" ng-model="custRefU">
+                                </div>
+                              </div>
 
-                      <!-- PANEL -->
-                      <div class="panel panel-success">
-                        <div class="panel-heading">
-                          <h3 class="panel-title">Edit Customer Details<span class="glyphicon glyphicon-user"></h3>
-                        </div>
-                        <div class="panel-body">
-                          <form class="form-horizontal" role="form">
-                            <div class="form-group">
-                              <label for="custNoU" class="col-sm-4 control-label">Customer Number:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custNoU" ng-model="custNoU">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custNameU" class="col-sm-4 control-label">Customer Name:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custNameU" ng-model="custNameU">
-                              </div>
-                            </div>
-                             <div class="form-group">
-                              <label for="custAddr1U" class="col-sm-4 control-label">Postal Address:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr1U" ng-model="custAddr1U">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custAddr1U" class="col-sm-4 control-label">Town:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr1U" ng-model="custAddr2U">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custAddr3U" class="col-sm-4 control-label">Surbub:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custAddr3U" ng-model="custAddr3U">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="custRefU" class="col-sm-4 control-label">Reference Number:</label>
-                              <div class="col-sm-6">
-                                <input type="text" class="form-control" id="custRefU" ng-model="custRefU">
-                              </div>
-                            </div>
-
-                          </form>
-                        </div>
-                        <div class="panel-footer">
-                          <button type="button" class="btn btn-primary" id="updateCustomer" ng-click="updateCustomer(custNoU)" >Update</button>
-                           <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showCustomersWarlock" ng-click="showCustomers()">Back</button>
-                        </div>
-                      </div><!-- END PANEL -->
-                    </div><!-- END COLUMN -->
-                  </div><!-- END ROW -->
-                </div><!-- CONTAINER -->
-            </div> <!-- END MODAL BODY -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div> <!-- END MODAL CONTENT -->
-    </div> <!-- END MODAL DIALOG -->
-</div> <!-- END MODAL CLASS -->
-
-<!-- REMOVE CUSTOMER -->
+                            </form>
+                          </div>
+                          <div class="panel-footer">
+                            <button type="button" class="btn btn-primary" id="updateCustomer" ng-click="updateCustomer(custNoU)" >Update</button>
+                             <button type="button" class="btn btn-success" id="back"data-dismiss="modal"  data-toggle="modal" data-target="#showCustomersWarlock" ng-click="showCustomers()">Back</button>
+                          </div>
+                        </div><!-- END PANEL -->
+                      </div><!-- END COLUMN -->
+                    </div><!-- END ROW -->
+                  </div><!-- CONTAINER -->
+              </div> <!-- END MODAL BODY -->
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div> <!-- END MODAL CONTENT -->
+      </div> <!-- END MODAL DIALOG -->
+  </div> <!-- END MODAL CLASS -->
 
 </div>
 

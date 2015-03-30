@@ -1,16 +1,16 @@
 angular.module('receipt')
 	.service('manageData', ['$http','$q', function($http,$q){
 		this.insertUser = function(user){
-			return $http.post('/addNewUser', user);
+			return $http.post('/api/addNewUser', user);
 		}
 
 		this.authenticate = function (loginUser) {
-			return $http.post('/userAuthenticate', loginUser);
+			return $http.post('/api/userAuthenticate', loginUser);
 		}
 
 		this.getUsers = function(){
 			var deferred = $q.defer();
-			$http.post('/showAllUsers').success(function (resp) {
+			$http.post('/api/showAllUsers').success(function (resp) {
 				deferred.resolve(resp);
 			}).error(function (resp) {
 				deferred.reject(resp); 
@@ -21,7 +21,7 @@ angular.module('receipt')
 
 		this.getStations = function(){
 			var deferred = $q.defer();
-			$http.post('/showAllStations').success(function (resp) {
+			$http.post('/api/showAllStations').success(function (resp) {
 				deferred.resolve(resp);
 			}).error(function (resp) {
 				deferred.reject(resp); 
@@ -32,7 +32,7 @@ angular.module('receipt')
 
 		this.getStation = function(stnId){
 			var deferred = $q.defer();
-			$http.post('/getStation', {station:stnId}).success(function (resp) {
+			$http.post('/api/getStation', {station:stnId}).success(function (resp) {
 				deferred.resolve(resp);
 			}).error(function (resp) {
 				deferred.reject(resp); 
@@ -44,7 +44,7 @@ angular.module('receipt')
 		this.getCurrBatch = function(stn,user){
 			var batch = {stnNum:stn, openBy:user};
 			var deferred = $q.defer();
-			$http.post('/getBatch', batch).success(function (resp) {
+			$http.post('/api/getBatch', batch).success(function (resp) {
 				deferred.resolve(resp);
 			}).error(function (resp) {
 				deferred.reject(resp); 
@@ -54,11 +54,11 @@ angular.module('receipt')
 		}
 
 		this.getLogdInUser = function () {
-			return $http.post('/getLogdInUser');
+			return $http.post('/api/getLogdInUser');
 		}
 
 		this.getBatchInfo = function() {
-			return $http.post('/');
+			return $http.post('/api/');
 		}
 
 		this.lastlogin = null;
@@ -125,7 +125,7 @@ angular.module('receipt')
 			var deferred = $q.defer();
 			var stnCode = stn;
 			var getValues = {station:stnCode};
-			$http.post('/getValues', getValues).success(function (resp) {
+			$http.post('/api/getValues', getValues).success(function (resp) {
 				deferred.resolve(resp);
 			}).error(function (resp) {
 				deferred.reject(resp); 
@@ -192,7 +192,7 @@ angular.module('receipt')
 
 	.service('recSwitch', ['$http',function($http) {
 		this.insertLog = function(log) {
-			return $http.post('/addNewLog', log);
+			return $http.post('/api/addNewLog', log);
 		}
 	}])
 

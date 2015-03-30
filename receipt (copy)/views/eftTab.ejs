@@ -1,0 +1,609 @@
+<div class="tab-pane fade in" id="eftuTab">
+  <div class="panel panel-default">
+    <div class="panel-heading">EFT</div>
+    <div class="panel-body">
+      <div class='col-lg-3'>
+        <div class="panel panel-success">
+          <div class="panel-heading">Select Bank</div>
+            <div class="panel-body">
+              <div class="alert alert-danger alert-dismissable" ng-if="eftStnSelected" >
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Error:</strong>
+                <span>{{eftStnSelectedMsg}}<br></span>
+               </div>
+              <form class="form-horizontal" role="form">
+                <div class="form-group">
+                  <label for="payMeth" class="col-sm-4 control-label">Bank:</label>
+                  <div class="col-sm-6">
+                    
+                    <select class="form-control" id="stneft" ng-model='stneft' ng-change="changeStn(stneft)">
+                      <option value="--Select--">--Select--</option>
+                      <option value="66">FNB</option>
+                      <option value="55">STD1</option>
+                      <option value="77">STD2</option>
+                      <option value="88">STD3</option>
+                      <option value="55">NED1</option>
+                      <option value="99">NED2</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+      </div>
+
+      <div class='col-lg-9'>
+        <ul class="nav nav-tabs">
+          <li><a href="#spuTabeftu" data-toggle="tab">SPU</a></li>
+          <li><a href="#capitalTabeftu" data-toggle="tab">CAPITAL</a></li>
+          <li><a href="#depositsTabeftu" data-toggle="tab">DEPOSITS</a></li>
+          <li><a href="#visitsTabeftu" data-toggle="tab">VISITS</a></li>
+          <li><a href="#otherTabeftu" data-toggle="tab">OTHER PAYMENTS</a></li>
+        </ul>
+
+        <div class="tab-content">
+          <!--SPU TAB PANE STARTS -->
+          <div class="tab-pane fade in active" id="spuTabeftu">
+            <div class="panel panel-default">
+              <div class="panel-heading">SPU 
+                <div class="pull-right"> <b>Station No : {{stationEft.stnId}} &nbsp&nbspBank Name : {{stationEft.stnBankCode}} &nbsp&nbsp Station Name: {{stationEft.stnName}}&nbsp&nbspStation Code : {{stationEft.stnBatchCode}}</b></div> </div>
+              <div class="panel-body">
+
+                <!-- SPU INSERT RECEIPT ERROR MESSAGES -->
+                <div ng-if="messageExistsSpu">
+                  <div class="alert alert-success alert-dismissable" ng-if="recInserted" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Success:</strong>
+                    <span>{{recInsertedMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="payMethodIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{payMethodErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="changeIsNotValid" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{changeErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="nameIsEmpty" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{nameErrorMsg}}<br></span>
+                  </div>
+                </div>
+                <!-- SPU INSERT RECEIPTING ERROR MESSAGES ENDS -->
+
+                <div class='row-fluid'>
+                  <div class='col-lg-6'>
+                    <div class="panel panel-warning">
+                      <div class="panel-heading">RECEIPT CAPTURE</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="spuacc" class="col-sm-4 control-label">Account No:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuacc" placeholder="1000000000" ng-model="accountSPU" ng-keyup="getCustomer(accountSPU, 'spu');resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                          <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtSPU" ng-keyup="calcChange('spu',tendamtSPU,recamtSPU);getAutoIncVals();resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="sputend" class="col-sm-4 control-label">Tendered:</label>
+                            <div class="col-sm-6">
+                              <input type="text" ng-disabled= "isMultiPay" class="form-control" id="sputend" placeholder="E 0.0" ng-model="tendamtSPU" ng-keyup="calcChange('spu',tendamtSPU,recamtSPU);resetMessagesDiv()">
+                              <input type="hidden" class="form-control" id="rectypeSPU" ng-model="recTypeSPU" ng-init="recTypeSPU='spu'">
+                            </div>
+                          </div>
+                         
+                        </form>
+                      </div> <!-- END PANEL BODY -->
+                    </div> <!-- END SECOND PANEL -->
+                  </div><!-- END COLUMN FOR RECEIPT CAPTURE--> 
+                  
+                  <!-- RECEIPT COLUMN -->
+                  <div class='col-lg-5 col-lg-offset-1'>
+                    <div class="panel panel-success">
+                      <div class="panel-heading">RECEIPT</div>
+                      <div class="panel-body">
+
+                        <center><b>Swaziland Electricity Company</b></center><p>
+                        <center><b>Payment Receipt</b></center><p><p>
+                        <span><b>Receipt No:</b></span><span style="float:right;"><i>{{RecNo}}</i></span><p>
+                        <span><b>Batch No:</b></span><span style="float:right;"><i>{{newBatchNum}}</i></span><p>
+                        <span><b>Transaction No:</b></span><span style="float:right;"><i>{{newTransNo}}</i></span><p>
+                        <span><b>Date:</b></span><span style="float:right;"><i id="spuDate">{{recDate | limitTo:28}}</i></span><p>
+                        <span><b>Account No:</b></span><span style="float:right;"><i>{{accountSPU}}</i></span><p>
+                        <span>{{custNameSPU}}</span><br/>
+                        <span>{{custAddrSPU}}</span><br/>
+                        <span>{{custCitySPU}}</span><br/><br />
+                        <span><b>Prev Balance</b></span><span style="float:right;"><i>{{custCurrBSPU | currency:"E"}}</i></span><p>
+                        <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtspu">{{tendamtSPU | currency:"E"}}</i></span><p>
+                        <span><b>Amount:</b></span><span style="float:right;"><i id="recamtspu">{{recamtSPU | currency:"E"}}</i></span><p>
+                        <span><b>Change:</b></span><span style="float:right;"><i id="changeamtspu">{{changeamtSPU | currency:"E"}}</i></span><p>
+                        <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                      </div>
+                      <div class="panel-footer">
+                        <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeSPU); multiPayDecreament(changeamtSPU)">Print<span class="glyphicon glyphicon-print"></span></button>
+                      </div>
+                    </div>
+                  </div> <!-- END COLUMN FOR RECEIPT -->  
+                </div> <!-- END ROW -->
+              </div> <!-- END SPU PANEL BODY--> 
+            </div><!-- END SPU OVERALL TAB PANEL--> 
+          </div> <!-- END SPU OVERALL PANE--> 
+          <!-- SPU TAB PANE ENDS -->
+
+          <!-- CAPITAL TAB PANE STARTS -->
+          <div class="tab-pane fade in" id="capitalTabeftu">
+            <div class="panel panel-default">
+              <div class="panel-heading">CAPITAL 
+                <div class="pull-right"> <b>Station No : {{stationEft.stnId}} &nbsp&nbspBank     Name : {{stationEft.stnBankCode}} &nbsp&nbsp Station Name: {{stationEft.stnName}}&nbsp&nbspStation Code : {{stationEft.stnBatchCode}}</b>
+                </div>
+              </div>
+              <div class="panel-body">
+
+                <!-- CAPITAL INSERT RECEIPT ERROR MESSAGES -->
+                <div ng-if="messageExistsCP">
+                  <div class="alert alert-success alert-dismissable" ng-if="recInserted" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Success:</strong>
+                    <span>{{recInsertedMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="payMethodIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{payMethodErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="changeIsNotValid" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{changeErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="nameIsEmpty" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{nameErrorMsg}}<br></span>
+                  </div>
+                </div>
+                <!-- CAPITAL INSERT RECEIPT ERROR MESSAGES ENDS -->
+
+                <div class='row-fluid'>
+                  <div class='col-lg-6'>
+                    <div class="panel panel-warning">
+                      <div class="panel-heading">RECEIPT CAPTURE</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="quoteRef" class="col-sm-4 control-label">Quote Ref:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="quoteRef" placeholder="A10/10000" ng-model="quoteRef" ng-keyup="getQuotation(quoteRef);resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="capitalamt" class="col-sm-4 control-label">Amount:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="capitalamt" placeholder="E 0.00" ng-model="recamtCP" ng-keyup="calcChange('capital', tendamtCP, recamtCP);resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="capitaltend" class="col-sm-4 control-label">Tendered:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="capitaltend" ng-disabled= "isMultiPay" placeholder="E 0.0" ng-model="tendamtCP" ng-keyup="calcChange('capital', tendamtCP, recamtCP);resetMessagesDiv()">
+                              <input type="hidden" class="form-control" id="rectypeCP" ng-model="recTypeCP" ng-init="recTypeCP='capital'">
+                            </div>
+                          </div>
+                          
+                          <% include chequeTemplateCP %>
+                        </form>
+                      </div> <!-- END PANEL BODY -->
+                    </div> <!-- END SECOND PANEL -->
+                  </div><!-- END COLUMN FOR RECEIPT CAPTURE--> 
+                  
+                  <!-- RECEIPT COLUMN -->
+                  <div class='col-lg-5 col-lg-offset-1'>
+                    <div class="panel panel-success">
+                      <div class="panel-heading">RECEIPT</div>
+                      <div class="panel-body">
+                        <center><b>Swaziland Electricity Company</b></center><p>
+                        <center><b>Payment Receipt</b></center><p><p>
+                        <span><b>Receipt No:</b></span><span style="float:right;"><i>{{RecNo}}</i></span><p>
+                        <span><b>Batch No:</b></span><span style="float:right;"><i>{{newBatchNum}}</i></span><p>
+                        <span><b>Transaction No:</b></span><span style="float:right;"><i>{{newTransNo}}</i></span><p>
+                        <span><b>Date:</b></span><span style="float:right;"><i>{{recDate | limitTo:28}}</i></span><p>
+                        <span><b>Quotation:</b></span><span style="float:right;"><i>{{quoteRef}}</i></span><p>
+                        <span>{{quotes.groupName}}</span><br/><br />
+                        <span><b>Prev Balance</b></span><span style="float:right;"><i id="quotebal">{{quotes.balance | currency:"E"}}</i></span><p>
+                        <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtcp">{{tendamtCP | currency:"E"}}</i></span><p><p>
+                        <span><b>Amount:</b></span><span style="float:right;"><i>{{recamtCP | currency:"E"}}</i></span><p>
+                        <span><b>Change:</b></span><span style="float:right;"><i id="changeamtcp">{{changeamtCP | currency:"E"}}</i></span><p>
+                        <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                      </div>
+                      <div class="panel-footer">
+                        <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeCP);multiPayDecreament(changeamtCP)">Print<span class="glyphicon glyphicon-print"></button>
+                      </div>
+                    </div> <!-- END PANEL -->
+                  </div> <!-- END COLUMN FOR RECEIPT -->  
+                </div> <!-- END ROW -->
+              </div> <!-- END CAPITAL PANEL BODY--> 
+            </div><!-- END CAPITAL OVERALL TAB PANEL--> 
+          </div> <!-- END CAPITAL OVERALL PANE-->
+          <!-- CAPITAL TAB PANE ENDS -->
+
+          <!-- DEPOSITS TAB PANE -->
+          <div class="tab-pane fade in" id="depositsTabeftu">
+            <div class="panel panel-default">
+              <div class="panel-heading">DEPOSITS 
+                <div class="pull-right"> <b>Station No : {{stationEft.stnId}} &nbsp&nbspBank Name : {{stationEft.stnBankCode}} &nbsp&nbsp Station Name: {{stationEft.stnName}}&nbsp&nbspStation Code : {{stationEft.stnBatchCode}}</b></div></div>
+              <div class="panel-body">
+
+                <!-- DEPOSITS INSERT RECEIPT ERROR MESSAGES -->
+                <div ng-if="messageExistsDP">
+                  <div class="alert alert-success alert-dismissable" ng-if="recInserted" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Success:</strong>
+                    <span>{{recInsertedMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="payMethodIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{payMethodErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="changeIsNotValid" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{changeErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="nameIsEmpty" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{nameErrorMsg}}<br></span>
+                  </div>
+                </div>
+                <!-- DEPOSITS INSERT RECEIPT ERROR MESSAGES ENDS-->
+
+                <div class='row-fluid'>
+                  <div class='col-lg-6'>
+                    <div class="panel panel-warning">
+                      <div class="panel-heading">RECEIPT CAPTURE</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="spuacc" class="col-sm-4 control-label">Account No:</label>
+                            <div class="col-sm-5">
+                              <input type="text" class="form-control" id="spuacc" placeholder="1000000000" ng-model="accountDP" ng-keyup="getCustomer(accountDP, 'deposits');resetMessagesDiv()" ng-disabled="newSusp">
+                            </div>
+                            <div class="col-sm-2">
+                              <button class="btn btn-primary" id="suspenceAcc" ng-model="suspenceAcc" ng-click="openSusp(susBtn)">{{susBtn}}</button>
+                            </div>
+                          </div>
+                          <!-- Suspense account -->
+                          <div ng-show="newSusp">
+                            <div class="form-group">
+                              <label for="spuamt" class="col-sm-4 control-label">Customer Name:</label>
+                              <div class="col-sm-6">
+                                <input type="text" class="form-control" id="cNameSusp" placeholder="Customer Name" ng-model="custNameDP">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="spuamt" class="col-sm-4 control-label">Adress 1:</label>
+                              <div class="col-sm-6">
+                                <input type="text" class="form-control" id="cAddr1Susp" placeholder="Customer Addr1" ng-model="custAddrDP">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="spuamt" class="col-sm-4 control-label">Adress 2:</label>
+                              <div class="col-sm-6">
+                                <input type="text" class="form-control" id="cAddr1Susp" placeholder="Customer Addr2" ng-model="custCityDP">
+                              </div>
+                            </div>
+                          </div>
+                          <!-- suspense account ends -->
+                          <div class="form-group">
+                            <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtDP" ng-keyup="calcChange('deposits',tendamtDP,recamtDP);resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="sputend" class="col-sm-4 control-label">Tendered:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="sputend" placeholder="E 0.0" ng-disabled= "isMultiPay" ng-model="tendamtDP" ng-keyup="calcChange('deposits',tendamtDP,recamtDP);resetMessagesDiv()">
+                              <input type="hidden" class="form-control" id="rectypeDP" ng-model="recTypeDP" ng-init="recTypeDP='deposits'">
+                            </div>
+                          </div>
+                          
+                          <% include chequeTemplateDP %>
+                        </form>
+                      </div> <!-- END PANEL BODY -->
+                    </div> <!-- END SECOND PANEL -->
+                  </div><!-- END COLUMN FOR RECEIPT CAPTURE--> 
+                  
+                  <!-- RECEIPT COLUMN -->
+                  <div class='col-lg-5 col-lg-offset-1'>
+                    <div class="panel panel-success">
+                      <div class="panel-heading">RECEIPT</div>
+                      <div class="panel-body">
+                        <center><b>Swaziland Electricity Company</b></center><p>
+                        <center><b>Payment Receipt</b></center><p><p>
+                        <span><b>Receipt No:</b></span><span style="float:right;"><i>{{RecNo}}</i></span><p>
+                        <span><b>Batch No:</b></span><span style="float:right;"><i>{{newBatchNum}}</i></span><p>
+                        <span><b>Transaction No:</b></span><span style="float:right;"><i>{{newTransNo}}</i></span><p>
+                        <span><b>Date:</b></span><span style="float:right;"><i>{{recDate | limitTo:28}}</i></span><p>
+                        <span><b>Account No:</b></span><span style="float:right;"><i>{{accountDP}}</i></span><p>
+                        <span>{{custNameDP}}</span><br/>
+                        <span>{{custAddrDP}}</span><br/>
+                        <span>{{custCityDP}}</span><br/><br />
+                        <p>
+                        <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtdp">{{tendamtDP | currency:"E"}}</i></span><p>
+                        <span><b>Amount:</b></span><span style="float:right;"><i>{{recamtDP | currency:"E"}}</i></span><p>
+                        <span><b>Change:</b></span><span style="float:right;"><i id="changeamtdp">{{changeamtDP | currency:"E"}}</i></span><p>
+                        <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                      </div>
+                      <div class="panel-footer">
+                        <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeDP); multiPayDecreament(changeamtDP)">Print<span class="glyphicon glyphicon-print"></button>
+                      </div>
+                    </div>
+                  </div> <!-- END COLUMN FOR RECEIPT -->  
+                </div> <!-- END ROW -->
+              </div> <!-- END DEPOSITS PANEL BODY--> 
+            </div><!-- END DEPOSITS OVERALL TAB PANEL--> 
+          </div> <!-- END DEPOSITS OVERALL PANE-->
+          <!--DEPOSITS TAB PANE ENDS -->
+
+          <!-- VISITS TAB PANE -->
+          <div class="tab-pane fade in" id="visitsTabeftu">
+            <div class="panel panel-default">
+              <div class="panel-heading">VISITS 
+                <div class="pull-right"> <b>Station No : {{stationEft.stnId}} &nbsp&nbspBank Name : {{stationEft.stnBankCode}} &nbsp&nbsp Station Name: {{stationEft.stnName}}&nbsp&nbspStation Code : {{stationEft.stnBatchCode}}</b></div></div>
+              <div class="panel-body">
+
+                <!-- VISITS INSERT RECEIPT ERROR MESSAGES -->
+                <div ng-if="messageExistsVT">
+                  <div class="alert alert-success alert-dismissable" ng-if="recInserted" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Success:</strong>
+                    <span>{{recInsertedMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="payMethodIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{payMethodErrorMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="changeIsNotValid" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{changeErrorMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="nameIsEmpty" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{nameErrorMsg}}<br></span>
+                  </div>
+                  <div class="alert alert-danger alert-dismissable" ng-if="stnIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{stnErrorMsg}}<br></span>
+                  </div>
+                </div>
+                <!-- VISITS INSERT RECEIPT ERROR MESSAGES ENDS-->
+
+                <div class='row-fluid'>
+                  <div class='col-lg-6'>
+                    <div class="panel panel-warning">
+                      <div class="panel-heading">RECEIPT CAPTURE</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="spuacc" class="col-sm-4 control-label">Customer name:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuacc" placeholder="Customer Name" ng-model="custNameVT" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="custAddr1VT" class="col-sm-4 control-label">Address 1:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="custAddr1VT" placeholder="Address one" ng-model="custAddr1VT" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="custAddr2VT" class="col-sm-4 control-label">Address 2:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="custAddr2VT" placeholder="Adress two" ng-model="custAddr2VT" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtVT" ng-keyup="calcChange('visits',tendamtVT,recamtVT);resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="sputend" class="col-sm-4 control-label">Tendered:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="sputend" placeholder="E 0.0" ng-disabled= "isMultiPay" ng-model="tendamtVT" ng-keyup="calcChange('visits',tendamtVT,recamtVT);resetMessagesDiv()">
+                              <input type="hidden" class="form-control" id="rectypeVT" ng-model="recTypeVT" ng-init="recTypeVT='visits'">
+                            </div>
+                          </div>
+                         
+                          <% include chequeTemplateVT %>
+                        </form>
+                      </div> <!-- END PANEL BODY -->
+                    </div> <!-- END SECOND PANEL -->
+                  </div><!-- END COLUMN FOR RECEIPT CAPTURE--> 
+                  
+                  <!-- RECEIPT COLUMN -->
+                  <div class='col-lg-5 col-lg-offset-1'>
+                    <div class="panel panel-success">
+                      <div class="panel-heading">RECEIPT</div>
+                      <div class="panel-body">
+                        <center><b>Swaziland Electricity Company</b></center><p>
+                        <center><b>Payment Receipt</b></center><p><p>
+                        <span><b>Receipt No:</b></span><span style="float:right;"><i>{{RecNo}}</i></span><p>
+                        <span><b>Batch No:</b></span><span style="float:right;"><i>{{newBatchNum}}</i></span><p>
+                        <span><b>Transaction No:</b></span><span style="float:right;"><i>{{newTransNo}}</i></span><p>
+                        <span><b>Date:</b></span><span style="float:right;"><i>{{recDate | limitTo:28}}</i></span></p><p>
+                        <span><b>Customer:</b></span><span style="float:right;"><i>{{custNameVT}}</i></span><br>
+                        <span style="float:right;"><i>{{custAddr1VT}}</i></span><br>
+                        <span style="float:right;"><i>{{custAddr2VT}}</i></span></p><br>
+                        <p>
+                        <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtvt">{{tendamtVT | currency:"E"}}</i></span><p><span><b>Amount</b></span><span style="float:right;"><i id="recamtvt">{{recamtVT | currency:"E"}}</i></span><p>
+                        <span><b>Change:</b></span><span style="float:right;"><i id="changeamtvt">{{changeamtVT | currency:"E"}}</i></span><p>
+                        <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                      </div>
+                      <div class="panel-footer">
+                        <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeVT); multiPayDecreament(changeamtVT)">Print<span class="glyphicon glyphicon-print"></button>
+                      </div>
+                    </div>
+                  </div> <!-- END COLUMN FOR RECEIPT -->  
+                </div> <!-- END ROW -->
+              </div> <!-- END VISITS PANEL BODY--> 
+            </div><!-- END VISITS OVERALL TAB PANEL--> 
+          </div> <!-- END VISITS OVERALL PANE-->
+          <!-- VISITS TAB PANE ENDS -->
+
+          <!-- OTHER PAYMENTS TAB PANE -->
+          <div class="tab-pane fade in" id="otherTabeftu">
+            <div class="panel panel-default">
+              <div class="panel-heading">OTHER PAYMENTS 
+                <div class="pull-right"> <b>Station No : {{stneft}} &nbsp&nbspBank Name : {{stationEft.stnBankCode}} &nbsp&nbsp Station Name: {{stationEft.stnName}}&nbsp&nbspStation Code : {{stationEft.stnBatchCode}}</b></div></div>
+              <div class="panel-body">
+                <!-- OTHER PAYMENTS INSERT RECEIPT ERROR MESSAGES -->                                                           
+                <div ng-if="messageExistsOP">
+                  <div class="alert alert-success alert-dismissable" ng-if="recInserted" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Success:</strong>
+                    <span>{{recInsertedMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="payMethodIsNotSet" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{payMethodErrorMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="changeIsNotValid" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{changeErrorMsg}}<br></span>
+                  </div>
+
+                  <div class="alert alert-danger alert-dismissable" ng-if="nameIsEmpty" >
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Error:</strong>
+                    <span>{{nameErrorMsg}}<br></span>
+                  </div>
+                </div>
+                <!-- OTHER PAYMENTS INSERT RECEIPT ERROR MESSAGES ENDS -->
+
+                <div class='row-fluid'>
+                  <div class='col-lg-6'>
+                    <div class="panel panel-warning">
+                      <div class="panel-heading">RECEIPT CAPTURE</div>
+                      <div class="panel-body">
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label for="spuacc" class="col-sm-4 control-label">Customer Name:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuacc" placeholder="Customer Name" ng-model="custNameOther" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="custAddr1Other" class="col-sm-4 control-label">Address 1:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="custAddr1Other" placeholder="Address one" ng-model="custAddr1Other" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="custAddr2Other" class="col-sm-4 control-label">Address 2:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="custAddr2Other" placeholder="Adrees two" ng-model="custAddr2Other" ng-keyup="resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group" ng-show="glCodeAvail">
+                            <label for="spuacc" class="col-sm-4 control-label">GL Code:</label>
+                            <div class="col-sm-6">
+                              <select class="form-control" id="payMethOP" placeholder="GL Code" ng-model="glCodeOP" ng-change="openNewGLBox()" >
+                                <option>--select--</option>
+                                <option ng-repeat="glcode in glCodes" value="{{glcode.glCode}}">{{glcode.glCode}} | {{glcode.glCodeDesc}}</option>
+                                <option>Other</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group" ng-show="newGLBox">
+                            <label for="newGlCode" class="col-sm-4 control-label">New GL Code:</label><button type="button" class="btn btn-primary" id="closeNewGLBox" ng-click="closeNewGLBox()" >Back</button>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="newGlCode" placeholder="H00000000" ng-model="glCodeOP2">
+                            </div>
+                          </div>
+                          <div class="form-group" ng-show="newGLBox">
+                            <label for="glCodeDesc" class="col-sm-4 control-label">GL Code Description:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="newGlCode" placeholder="Description" ng-model="glCodeDesc">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="spuamt" class="col-sm-4 control-label">Amount:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="spuamt" placeholder="E 0.00" ng-model="recamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="optend" class="col-sm-4 control-label">Tendered:</label>
+                            <div class="col-sm-6">
+                              <input type="text" class="form-control" id="optend" placeholder="E 0.0" ng-disabled= "isMultiPay" ng-model="tendamtOP" ng-keyup="calcChange('otherPayments',tendamtOP,recamtOP);resetMessagesDiv()">
+                              <input type="hidden" class="form-control" id="rectypeOP" ng-model="recTypeOP" ng-init="recTypeOP='otherPayments'">
+                            </div>
+                          </div>
+                        
+                          <% include chequeTemplateOP %>
+                        </form>
+                      </div> <!-- END PANEL BODY -->
+                    </div> <!-- END SECOND PANEL -->
+                  </div><!-- END COLUMN FOR RECEIPT CAPTURE--> 
+                  
+                  <!-- RECEIPT COLUMN -->
+                  <div class='col-lg-5 col-lg-offset-1'>
+                    <div class="panel panel-success">
+                      <div class="panel-heading">RECEIPT</div>
+                      <div class="panel-body">
+                        <center><b>Swaziland Electricity Company</b></center><p>
+                        <center><b>Payment Receipt</b></center><p><p>
+                        <span><b>Receipt No:</b></span><span style="float:right;"><i>{{RecNo}}</i></span><p>
+                        <span><b>Batch No:</b></span><span style="float:right;"><i>{{newBatchNum}}</i></span><p>
+                        <span><b>Transaction No:</b></span><span style="float:right;"><i>{{newTransNo}}</i></span><p>
+                        <span><b>Date:</b></span><span style="float:right;"><i>{{recDate | limitTo:28}}</i></span><p>
+                        <span><b>Customer:</b></span><span style="float:right;"><i>{{custNameOther}}</i></span><br><span style="float:right;"><i>{{custAddr1Other}}</i></span><br><span style="float:right;"><i>{{custAddr2Other}}</i></span><br><p>
+                        <span><b>Pay Method:</b></span><span style="float:right;"><i>{{payMethOP}}</i></span><p>
+                        <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtop">{{tendamtOP | currency:"E"}}</i></span></p><p>
+                        <span><b>Amount:</b></span><span style="float:right;"><i id="recamtop">{{recamtOP | currency:"E"}}</i></span><p>
+                        <span><b>Change:</b></span><span style="float:right;"><i id="changeamtop">{{changeamtOP | currency:"E"}}</i></span><p>
+                        <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                      </div>
+                      <div class="panel-footer">
+                        <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeOP); multiPayDecreament(changeamtOP)">Print<span class="glyphicon glyphicon-print"></button>
+                      </div>
+                    </div>
+                  </div> <!-- END COLUMN FOR RECEIPT -->  
+                </div> <!-- END ROW -->
+              </div> <!-- END OTHER PANEL BODY--> 
+            </div><!-- END OTHER OVERALL TAB PANEL--> 
+          </div> <!-- END OTHER OVERALL PANE-->
+          <!-- OTHER PAYMENTS TAB PANE ENDS -->
+        </div> <!-- END TAB CONTENT -->
+      </div> <!-- END COLON -->  
+    </div> <!-- END PANEL BODY -->
+  </div> <!-- END PANEL -->
+</div><!-- END OVERALL PANE -->

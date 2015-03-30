@@ -126,7 +126,7 @@
                         <span><b>Amount:</b></span><span style="float:right;"><i id="recamtspu">{{recamtSPU | currency:"E"}}</i></span><p>
                         <span><b>Change:</b></span><span style="float:right;"><i id="changeamtspu">{{changeamtSPU | currency:"E"}}</i></span><p>
                         <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
-                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{stationEft.stnName}}</i></span><p>
                       </div>
                       <div class="panel-footer">
                         <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeSPU); multiPayDecreament(changeamtSPU)">Print<span class="glyphicon glyphicon-print"></span></button>
@@ -223,7 +223,7 @@
                         <span><b>Amount:</b></span><span style="float:right;"><i>{{recamtCP | currency:"E"}}</i></span><p>
                         <span><b>Change:</b></span><span style="float:right;"><i id="changeamtcp">{{changeamtCP | currency:"E"}}</i></span><p>
                         <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
-                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{stationEft.stnName}}</i></span><p>
                       </div>
                       <div class="panel-footer">
                         <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeCP);multiPayDecreament(changeamtCP)">Print<span class="glyphicon glyphicon-print"></button>
@@ -345,7 +345,7 @@
                         <span><b>Amount:</b></span><span style="float:right;"><i>{{recamtDP | currency:"E"}}</i></span><p>
                         <span><b>Change:</b></span><span style="float:right;"><i id="changeamtdp">{{changeamtDP | currency:"E"}}</i></span><p>
                         <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
-                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{stationEft.stnName}}</i></span><p>
                       </div>
                       <div class="panel-footer">
                         <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeDP); multiPayDecreament(changeamtDP)">Print<span class="glyphicon glyphicon-print"></button>
@@ -460,7 +460,7 @@
                         <span><b>Tendered:</b></span><span style="float:right;"><i id="tendamtvt">{{tendamtVT | currency:"E"}}</i></span><p><span><b>Amount</b></span><span style="float:right;"><i id="recamtvt">{{recamtVT | currency:"E"}}</i></span><p>
                         <span><b>Change:</b></span><span style="float:right;"><i id="changeamtvt">{{changeamtVT | currency:"E"}}</i></span><p>
                         <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
-                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{stationEft.stnName}}</i></span><p>
                       </div>
                       <div class="panel-footer">
                         <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeVT); multiPayDecreament(changeamtVT)">Print<span class="glyphicon glyphicon-print"></button>
@@ -590,7 +590,7 @@
                         <span><b>Amount:</b></span><span style="float:right;"><i id="recamtop">{{recamtOP | currency:"E"}}</i></span><p>
                         <span><b>Change:</b></span><span style="float:right;"><i id="changeamtop">{{changeamtOP | currency:"E"}}</i></span><p>
                         <span><b>Cashier:</b></span><span style="float:right;"><i>{{currUser.firstname}}-{{currUser.lastname}}</i></span><p>
-                        <span><b>Station:</b></span><span style="float:right;"><i>{{currStation.stnname}}</i></span><p>
+                        <span><b>Station:</b></span><span style="float:right;"><i>{{stationEft.stnName}}</i></span><p>
                       </div>
                       <div class="panel-footer">
                         <button type="button" class="btn btn-default btn-lg" id="recLogin" ng-click="insertRec(recTypeOP); multiPayDecreament(changeamtOP)">Print<span class="glyphicon glyphicon-print"></button>

@@ -1,0 +1,24 @@
+<div class="tab-pane fade in" id="adminTab">
+  <div class="panel panel-default">
+    <div class="panel-heading">Administrator</div>
+    <div class="panel-body">
+      <div class='row-fluid'>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" id="adminUsers" data-toggle="modal" data-target="#showUsersWarlock" ng-click="showUsers();clearAlerts()" data-backdrop="static"><img src="/images/icons/active/by32/users_5.png"class="img-rounded">Users</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1' >
+          <button type="button" class="btn btn-default btn-lg" id="adminTerminal" data-toggle="modal" data-toggle="modal" ng-click="showStations()" data-target="#showStationsWarlock" data-backdrop="static"><img src="/images/icons/active/by32/calculator_black.png"class="img-rounded">Terminals</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" id="adminSys" data-toggle="modal" data-target="#sysParamsWarlock" data-backdrop="static"><img src="/images/icons/active/by32/service_status.png"class="img-rounded">Sys Params</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" id="refreshCust" ng-click="refreshCust()"><img src="/images/icons/active/by32/arrow_rotate_clockwise.png"class="img-rounded">Refresh Customers</button>
+        </div>
+        <div class='col-lg-3 col-lg-offset-1'>
+          <button type="button" class="btn btn-default btn-lg" id="refreshQuotes" ng-click="refreshQuotes()"><img src="/images/icons/active/by32/arrow_refresh.png"class="img-rounded">Refresh Quotes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

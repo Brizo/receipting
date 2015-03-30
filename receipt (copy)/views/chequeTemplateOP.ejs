@@ -1,0 +1,20 @@
+<div class='row-fluid'  ng-show="choseChequeOP" id="chequeTemplate">                                       
+     <div class="form-group">
+        <label for="chequeNo" class="col-sm-4 control-label">Cheque Number:</label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="chequeNo" placeholder="100000" ng-disabled= "isMultiPay" ng-model="chequeNoOP"/>
+        </div>
+     </div>
+    <div class="form-group">
+      <label for="bankCode" class="col-sm-4 control-label">Bank Code:</label>
+      <div class="col-sm-6">
+	<select class="form-control" id="bankCode" ng-disabled= "isMultiPay" ng-model="bankCodeOP"><option>--Select--</option><option>FNB</option><option>NED</option><option>STD</option><option>SWB</option><option>SBS</option></select>
+      </div>
+    </div>
+      <div class="form-group">
+      <label for="drawerName" class="col-sm-4 control-label">Drawer's Name:</label>
+      <div class="col-sm-6">
+        <input type="text" class="form-control" id="drawerName" placeholder="Drawer's Name" ng-disabled= "isMultiPay" ng-model="drawerNameOP">
+      </div>
+    </div>
+</div>
