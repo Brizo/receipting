@@ -14,7 +14,6 @@ $('#validate').click(function () {
 	}else if ($('#roleCashier').is(':checked')) {
 		setTimeout(function(){
 			$('#cashierTab').addClass("active");
-			element = document.getElementById('cashierTab');
 		},200);
 	}else if ($('#roleRpt').is(':checked')) {
 		setTimeout(function(){

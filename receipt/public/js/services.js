@@ -186,6 +186,16 @@ angular.module('receipt')
 	  	};
 
 	}])
+	
+	/*.service('changePasswd',['$modal', function ($modal){
+		this.openchPsswdModal= function() {
+			var modalInstance = $modal.open({
+		        templateUrl: 'views/login.ejs',
+		         controller: 'manageUsers'
+		    });
+		}
+	}])*/
+
 	.factory('getParams', function($http) { 
     	return $http.post('http://localhost:3080/readStationParams');
 	})

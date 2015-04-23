@@ -4,8 +4,8 @@ var express     = require('express'),
     crypto      = require ('crypto'),
 
     router  = express.Router(),
-    databaseUrl = "receipting",
-    collections = ["users", "banks", "stations", "customers", "batches", "receipts", "quotes", "receiptIncrVals", "stationParams", "glcodes", "receiptlog"],
+    databaseUrl = "receipting",//"147.110.192.71,147.110.192.100,147.110.186.221/receipting?slaveOk=true",
+    collections = ["users", "banks", "usersAssigned", "stations", "customers", "batches", "receipts", "quotes", "receiptIncrVals", "stationParams", "glcodes", "receiptlog"],
     db = require("mongojs").connect(databaseUrl, collections),
 
     // MySql  --> Aging Analysis
@@ -232,6 +232,21 @@ router
         });
     })
 
+    // get multipay
+    .post('/getMultiPay', function(req, res){
+        var mPayId = req.body.mPayId;
+        var recNo = req.body.receiptNo;
+        console.log(recNo);
+        console.log(mPayId);
+        db.receipts.findOne({mPay:true,mPayID:mPayId, recNum:recNo}, function(err, data){
+            if( err || !data) {
+                res.send("Multipay does not exist");
+            } else {
+                res.send(data);
+            }
+        });
+    })
+
     /***********************************************
              RETRIVE ALL DOCUMENTS ROUTES
     //*********************************************/
@@ -330,8 +345,9 @@ router
         });
     })
 
-    // get all batches from db route
+    // get all quotations from db route
     .post('/showAllQuotes', function(req, res){
+        console.log("It came to get all quotations");
         db.quotes.find(function(err, data){
             if(err || !data) {
                 res.send("No quote found");
@@ -441,6 +457,7 @@ router
 
     // add new receipt route
     .post('/addNewReceipt', function(req, res){
+        console.log("added a new receipt");
         newreceipt = req.body;
         newreceipt["created_on"] = new Date(newreceipt.recDate);
         db.receipts.insert(newreceipt, function (err, data) {
@@ -549,13 +566,18 @@ router
                          UPDATE DOCUMENTS
     //***************************************************/
     // update status for Multi-Pay
-    .post('/softDeleteMPay/:mpayid', function(req, res) {
-        var recs = Number(req.params.mpayid);
-        db.receipts.update({mPayID:recs},{$set: {status: "deleted"}}, { multi: true }, function(err, deleted) {
+    .post('/softDeleteMPay', function(req, res) {
+        console.log("cancel multipay");
+        var id = req.body.id;
+        console.log(id);
+
+        var recno = req.body.recno;
+        console.log(recno);
+        db.receipts.update({mPayID:id,recNum:recno},{$set: {status: "deleted"}}, function(err, deleted) {
             if (err) {
                 res.send("An error occured");
             } else {
-                res.send ("Multi-Pay removed");
+                res.send ("Multi-Pay Cancelled");
             }    
         });
     })
@@ -583,6 +605,17 @@ router
                 res.send("User successfully updated");
             }
         });
+    })
+
+    .post('/resetCPsswd', function (req, res) {
+        var cashier = req.body;
+        db.users.update({uname:cashier.username},{$set: {passkey:cashier.newPasswd,passtate:"reset"}}, function (err, saved) {
+            if (err) {
+                res.send("An error occured");    
+            } else {
+                res.send("Password successfully updated");
+            } 
+        });       
     })
 
     .post('/setLastLogin', function(req, res) {
@@ -654,18 +687,56 @@ router
     })
 
     // assign cashier route
-    .post('/assignCashier/:id', function (req, res) {
-        var cashierId = req.params.id;
+    .post('/assignCashier', function (req, res) {
+    
+        var cashierId = req.body.uname;
+        var aStatus = req.body.assignStatus;
         var transferStn = req.body.station;
+        var prevStn = req.body.currStn; //push it to history array
         var startDate = req.body.startDate;
         var endDate = req.body.endDate;
-        db.users.update({uname:cashierId},{$set: {station:transferStn, transStartDate: startDate, transEndDatev: endDate}}, function (err, saved){
+        var theDateToday = req.body.currentDate;
+    
+        db.usersAssigned.update({uname:cashierId},{$set: {assignStatus:aStatus, currStn:transferStn, startDate: startDate, endDate: endDate}}, function (err, saved){
             if (err) {
                 res.send ("An error occured");
             } else {
                 res.send("Cashier Assigned");
             }
-        })
+        });
+    
+        //db.users.update({uname:cashierId},{$set: {station:transferStn, transStartDate: startDate, transEndDate: endDate}});
+    })
+
+      // get assigned route
+    .post('/getAssigned', function(req, res) {
+        var username = req.body.uname;
+        db.usersAssigned.findOne({uname:username}, function(err, data) {
+            if (err || !data) {
+                res.send("User not in database");
+            } else {
+                res.send(data);
+            } 
+        });
+    })
+
+    // assign cashier route
+    .post('/assignCashierInsert', function (req, res) {
+        var cashierId = req.body.uname;
+        var aStatus = req.body.assignStatus;
+        var transferStn = req.body.station;
+        var prevStn = req.body.currStn; //push it to history array
+        var startDate = req.body.startDate;
+        var endDate = req.body.endDate;
+        db.usersAssigned.insert({assignStatus:aStatus, uname:cashierId,permStn:prevStn,currStn:transferStn, startDate: startDate, endDate: endDate}, function (err, saved){
+            if (err) {
+                res.send ("An error occured");
+            } else {
+                res.send("Cashier Assigned");
+            }
+        });
+    
+        //db.users.update({uname:cashierId},{$set: {station:transferStn, transStartDate: startDate, transEndDate: endDate}});
     })
 
     // update receipt route

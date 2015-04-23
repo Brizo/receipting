@@ -28,7 +28,7 @@
                                   <small>Username cannot be empty</small>
                                 </span>
                                 <span class="help-block" ng-show="loginForm.uname.$error.pattern && loginForm.uname.$dirty">
-                                  <small>Username : SEC+pf</small>
+                                  <small>Username should start with SEC followed by PF no</small>
                                 </span>
                                 <span class="help-block" ng-show="loginForm.uname.$error.maxlength && loginForm.uname.$dirty">
                                   <small>Username can not be more than 7 characters</small>
@@ -49,7 +49,7 @@
                             </div>
 
                             <div ng-if="changePwd">
-
+                              <p>You need to change your password</p>
                               <div ng-class="{'has-error': loginForm.newPasskey.$invalid && loginForm.newPasskey.$dirty}" class="form-group">
                                 <label for="newPasskey" class="col-sm-4 control-label">New Password:</label>
                                 <div class="col-sm-6">
@@ -73,7 +73,6 @@
                                   </span>
                                 </div>
                               </div>
-
                             </div>
 
                             <div class="form-group">
@@ -516,12 +515,12 @@
                           <div ng-controller="stnTblCtrl as showCase">
                             <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
                               <thead>
-                              <tr>
+                                <tr>
                                   <th><strong>STATION ID</strong></th>
                                   <th><strong>STATION NAME</strong></th>
                                   <th><strong>BATCH CODE</strong></th>
                                   <th><strong>ACTION</strong></th>
-                              </tr>
+                                </tr>
                               </thead>
                               <tbody> 
                                 <tr ng-repeat="stn in stations">
@@ -538,7 +537,7 @@
                          
                           </div>
                            <div class="panel-footer">
-                            <button type="button" class="btn btn-primary" id="addStation" data-dismiss="modal" data-toggle="modal" data-target="#addStationWarlock" data-backdrop="static">Add New Station</button>
+                            <button type="button" class="btn btn-primary" id="addStation" data-dismiss="modal" data-toggle="modal" data-target="#addStationWarlock" ng-click="getBanks()" data-backdrop="static">Add New Station</button>
                           
                           </div>
                         </div><!-- END PANEL -->
@@ -578,15 +577,14 @@
                           <!-- ERROR MESSAGE DIV FOR ADD STATION -->
                           <div class="alert alert-danger alert-dismissable" ng-if="hasAddStationError" >
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Error:</strong><br>
-                            <span ng-repeat='error in addStationErrorMsgs'>{{error}}<br></span>
+                            <strong>Error : </strong><span ng-repeat='error in addStationErrorMsgs'>{{error}}</span>
                           </div>
 
                           <!-- SUCCESS MESSAGE DIV FOR ADD STATION -->
                           <div class="alert alert-success alert-dismissable" ng-if="stationInserted" >
                               <button type="button" class="close" data-dismiss="alert">&times;</button>
-                              <strong>Success:</strong>
-                              <span>{{stationInsertedMsg}}<br></span>
+                              <strong>Success : </strong>
+                              <span>{{stationInsertedMsg}}</span>
                           </div>
 
                             <form class="form-horizontal" role="form">
@@ -609,18 +607,21 @@
                                 </div>
                               </div>
                               <div class="form-group">
-                                <label for="stnBatchCode" class="col-sm-4 control-label">Account:</label>
+                                <label for="stnBankCode" class="col-sm-4 control-label">Bank Code:</label>
                                 <div class="col-sm-6">
-                                  <input type="text" class="form-control" id="stnBatchCode" placeholder="Account Number" ng-model="stnAccount">
+                                  <select class="form-control" id="stnBankCode" ng-model="stnBankCode">
+                                    <option ng-repeat="bank in banks" value="{{bank.bankCode}}">{{bank.bankCode}} | {{bank.bankName}}</option>
+                                  </select>
                                 </div>
                               </div>
                               <div class="form-group">
-                                <label for="stnBatchCode" class="col-sm-4 control-label">Bank Code:</label>
+                                <label for="stnAccount" class="col-sm-4 control-label">Bank Account:</label>
                                 <div class="col-sm-6">
-                                  <input type="text" class="form-control" id="stnBatchCode" placeholder="Bank code" ng-model="stnBankCode">
+                                  <select class="form-control" id="stnAccount" ng-model="stnAccount">
+                                    <option ng-repeat="bank in banks" value="{{bank.bankAcc}}">{{bank.bankAcc}} | {{bank.bankName}}</option>
+                                  </select>
                                 </div>
                               </div>
-
                             </form>
                           </div>
                           <div class="panel-footer">
@@ -661,24 +662,26 @@
                           <div class="panel-body">
 
                             <!-- ERROR MESSAGE DIV FOR SET STATION PARAMS -->
-                            <div class="alert alert-danger alert-dismissable" ng-if="paramsSetError" >
+                            <div class="alert alert-danger alert-dismissable" ng-if="hasParamsSetError">
                               <button type="button" class="close" data-dismiss="alert">&times;</button>
-                              <strong>Error:</strong><br>
-                              <span>{{paramsSetErrorMsg}}<br></span>
+                              <strong>Error : </strong><span>{{setParamsErrMsg}}</span>
                             </div>
 
                             <!-- SUCCESS MESSAGE DIV FOR SET STATION PARAMS-->
-                            <div class="alert alert-success alert-dismissable" ng-if="paramsSet" >
+                            <div class="alert alert-success alert-dismissable" ng-if="paramsSet">
                                 <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                <strong>Success:</strong>
-                                <span>{{paramsSetMsg}}<br></span>
+                                <strong>Success : </strong>
+                                <span>{{paramsSetMsg}}</span>
                             </div>
 
                             <form class="form-horizontal" role="form">
                               <div class="form-group">
                                 <label for="stnNum" class="col-sm-4 control-label">Station Number:</label>
                                 <div class="col-sm-4">
-                                  <input type="text" class="form-control" id="stnNum" placeholder="Enter Station Number" ng-model="stnNumParam" ng-keyup="getParamStation(stnNumParam)">
+                                  <input type="text" class="form-control" id="stnNum" placeholder="Enter Station Number" ng-model="stnNumParam">
+                                </div>
+                                <div class="col-sm-2">
+                                  <button type="button" ng-click="getParamStation(stnNumParam)" class="btn btn-success" id="searchusers">Search</button>
                                 </div>
                               </div>
                               <br >
@@ -711,7 +714,7 @@
                           </div>
                     
                           <div class="panel-footer">
-                            <button type="button"  ng-click="setStationParams()" class="btn btn-primary" id="setStationParams">Set Params</button>
+                            <button type="button"  ng-disabled='!setParams' ng-click="setStationParams()" class="btn btn-primary" id="setStationParams">Set Params</button>
                           </div>
                         </div><!-- END PANEL -->
                       </div><!-- END COLUMN -->
@@ -821,63 +824,92 @@
       </div> <!-- END MODAL DIALOG -->
   </div> <!-- END MODAL CLASS -->
 
-  <!-- SHOW MULTI-PAYS -->
-  <div class="modal fade"  id="searchMultipayWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                  <h3 class="modal-title" id="panelLabel">ALL MULTI-PAYS</h3>
-              </div>
-              <div class="modal-body">
-                  <div class='container-fluid'>
-                    <div class='row-fluid'>
-                      <div class='col-lg-10 col-lg-offset-1'>
+<div ng-controller="receiptCtrl" class="modal fade" id="searchMultipayWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancelCancelMpay()">X</button>
+                <h3 class="modal-title" id="panelLabel">CANCEL Multipay</h3>
+            </div>
+            <div class="modal-body">
+                <div class='container-fluid'>
+                  <div class='row-fluid'>
+                    <div class='col-lg-8 col-lg-offset-2'>
 
-                        <!-- PANEL -->
-                        <div class="panel panel-success">
-                          <div class="panel-heading">
-                            <h3 class="panel-title">MULTI-PAYS<span class="glyphicon glyphicon-user"></h3>
+                      <!-- PANEL -->
+                      <div class="panel panel-success">
+                        <div class="panel-heading">
+                          <h3 class="panel-title">MULTIPAY<span class="glyphicon glyphicon-user"></h3>
+                        </div>
+                        <div class="panel-body">
+
+                          <!-- ERROR MESSAGE DIV FOR TRANSFER CASHIER -->
+                          <div class="alert alert-danger alert-dismissable" ng-if="hasCancelMpayErr" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Error : </strong><span>{{cancelMpayErrorMsg}}</span>
                           </div>
-                          <div class="panel-body">
-                           <table id="showMultiPayRecsTbl" class="mpaytable table table-striped table-bordered" cellspacing="0" width="100%">
-                              <thead>
-                                <tr>
-                                  <th><strong>MULTI-PAY ID</strong></th>
-                                  <th><strong>RECEIPT NUMBER</strong></th>
-                                  <th><strong>RECEIPT BATCH</strong></th>
-                                  <th><strong>DELETE</strong></th>
-                                </tr>
-                              </thead>
-                              <tbody id="showMultiPayRecsTblData">
+
+                          <!-- SUCCESS MESSAGE DIV FOR  TRANSFER CASHIER -->
+                          <div class="alert alert-success alert-dismissable" ng-if="cancelMpay" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success : </strong>
+                              <span>{{cancelMpayMsg}}<br></span>
+                          </div>
+                          <!-- NEW CODE ENDS -->
+
+                          <div ng-show="!hasMultipayR">
+                            <form class="form-horizontal" role="form">
+                              <div class="form-group">
+                                <label for="multipayId" class="col-sm-4 control-label">Multipay ID:</label>
+                                <div class="col-sm-4">
+                                  <input type="text" class="form-control" id="multipayId" placeholder="Enter Multipay ID" ng-model="multipayId" >
+                                </div>
+
+                              </div>
+                              <div class="form-group">
+                                <label for="receiptNo" class="col-sm-4 control-label">Receipt Number:</label>
+                                <div class="col-sm-4">
+                                  <input type="text" class="form-control" id="receiptNo" placeholder="Enter Receipt Number" ng-model="receiptNoC" >
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <div class="col-sm-2">
+                                  <button type="button" ng-click="getMultipayR(multipayId, receiptNoC)" class="btn btn-success" id="searchreceipts">Search</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                          <div class="col-sm-10" ng-show="hasMultipayR">
+                            <table id="showMPayTbl" class="table table-bordered">
+                              <tbody>
+                                <tr><td><strong>MULTI-PAY ID</strong></td><td>{{mPay.mPayID}}</td></tr>
+                                <tr><td><strong>RECEIPT NUMBER</strong></td><td>{{mPay.recNum}}</td></tr>
+                                </tr> <td><strong>CAPTURED BY</strong></td><td>{{mPay.cashier}} [{{mPay.cashierUname}}]</td></tr>
+                                </tr><td><strong>CUSTOMER ACCOUNT</strong></td><td>{{mPay.account}} [{{mPay.custName}}]</td></tr>
+                                </tr><td><strong>STATION</strong></td><td>{{mPay.stnName}}</td></tr>
+                                </tr><td><strong>AMOUNT</strong></td><td>E {{mPay.amtdue}}</td></tr>                            
                               </tbody>
-
-                              <tfoot>
-                                <tr>
-                                  <th><strong>MULTI-PAY ID</strong></th>
-                                  <th><strong>RECEIPT NUMBER</strong></th>
-                                  <th><strong>RECEIPT BATCH</strong></th>
-                                  <th><strong>DELETE</strong></th>
-                                </tr>
-                              </tfoot>
-                              </table>
+                            </table>
                           </div>
-                           <div class="panel-footer">
-                          </div>
-                        </div><!-- END PANEL -->
-                      </div><!-- END COLUMN -->
-                    </div><!-- END ROW -->
-                  </div><!-- CONTAINER -->
-              </div> <!-- END MODAL BODY -->
-                       
-             
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-default" ng-click="cancelProcess()" data-dismiss="modal" >Close</button>
-              </div>
-          </div> <!-- END MODAL CONTENT -->
-      </div> <!-- END MODAL DIALOG -->
-  </div> <!-- END MODAL CLASS -->
-</div>
+                        </div>
+                  
+                        <div class="panel-footer">
+                          <button type="button"  ng-disabled="!cancelMPay" ng-click="softRemoveReceipts(multipayId,receiptNoC)" class="btn btn-primary" id="cancelMultipay">Cancel mPay</button>
+                          <button ng-disabled="!cancelMPay" type="button" id="cancel" data-dismiss="modal" ng-click="cancelCancelMpay()" class="btn btn-warning" id="cancelcancelrec">Cancel</button>
+                        </div>
+                      </div><!-- END PANEL -->
+                    </div><!-- END COLUMN -->
+                  </div><!-- END ROW -->
+                </div><!-- CONTAINER -->
+            </div> <!-- END MODAL BODY -->
+                     
+           
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="cancelCancelMpay()" data-dismiss="modal" >Close</button>
+            </div>
+        </div> <!-- END MODAL CONTENT -->
+    </div> <!-- END MODAL DIALOG -->
+</div> <!-- END MODAL CLASS -->
 
 <!-- ========================================================================================== -->
 <!-- QUOTATIONS -->
@@ -1044,29 +1076,26 @@
                             <h3 class="panel-title">CUSTOMERS<span class="glyphicon glyphicon-user"></h3>
                           </div>
                           <div class="panel-body">
-
-                             <table id="showCustomersTbl" class="custable table table-striped table-bordered" cellspacing="0" width="100%">
-                              <thead>
+                            <div ng-controller="custTblCtrl as showCase">
+                              <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                                <thead>
                                   <tr>
-                                    <th><strong>Account NO</strong></th>
+                                    <th><strong>ACCOUNT NO</strong></th>
                                     <th><strong>NAME</strong></th>
-                                    <th><strong>DEPOT_NAME</strong></th>
-                                    <th><strong>Address</strong></th>
+                                    <th><strong>DEPOT NAME</strong></th>
+                                    <th><strong>ADDRESS</strong></th>
                                   </tr>
-                              </thead>
-                           
-                              <tfoot>
-                                  <tr>
-                                    <th><strong>Account NO</strong></th>
-                                    <th><strong>NAME</strong></th>
-                                    <th><strong>DEPOT_NAME</strong></th>
-                                    <th><strong>Address</strong></th>
+                                </thead>
+                                <tbody> 
+                                  <tr ng-repeat="cust in customers">
+                                    <td>{{cust.Account}}</td>
+                                    <td>{{cust.NAME}}</td>
+                                    <td>{{cust.DEPOT_NAME}}</td>
+                                    <td>{{cust.Address}} {{cust.City}}</td>
                                   </tr>
-                              </tfoot>
-                           
-                              <tbody id="showCustTblData">
-                              </tbody>
+                                </tbody>
                               </table>
+                            </div>
                           </div>
                         </div><!-- END PANEL -->
                       </div><!-- END COLUMN -->
@@ -1271,6 +1300,21 @@
                           <h3 class="panel-title">RECEIPT<span class="glyphicon glyphicon-user"></h3>
                         </div>
                         <div class="panel-body">
+
+                          <!-- ERROR MESSAGE DIV FOR TRANSFER CASHIER -->
+                          <div class="alert alert-danger alert-dismissable" ng-if="hasCancelRErr" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Error : </strong><span>{{cancelRErrorMsg}}</span>
+                          </div>
+
+                          <!-- SUCCESS MESSAGE DIV FOR  TRANSFER CASHIER -->
+                          <div class="alert alert-success alert-dismissable" ng-if="cancelRec" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success : </strong>
+                              <span>{{cancelRecMsg}}<br></span>
+                          </div>
+                          <!-- NEW CODE ENDS -->
+
                           <form class="form-horizontal" role="form">
                             <div class="form-group">
                               <label for="receiptNo" class="col-sm-4 control-label">Receipt Number:</label>
@@ -1282,14 +1326,14 @@
                               </div>
                             </div>
                           </form>
-                          <div class="col-sm-10" ng-show="hasinfo">
+                          <div class="col-sm-10" ng-show="hasCancelR">
                             <table id="showReceiptsTbl" class="table table-bordered">
                             <tbody>
                               <tr><td><strong>RECEIPT NUMBER</strong></td><td>{{recNum}}</td></tr>
-                              </tr> <td><strong>CAPTURED BY</strong></td><td>{{cashier}} [{{cashierUname}}]</td></tr>
+                              </tr> <td><strong>CAPTURED BY</strong></td><td>{{cashier}}</td></tr>
                               </tr><td><strong>CUSTOMER</strong></td><td>{{account}} [{{cust}}]</td></tr>
                               </tr><td><strong>STATION</strong></td><td>{{station}}</td></tr>
-                              </tr><td><strong>AMOUNT</strong></td><td>{{amtdue}}</td></tr>                            
+                              </tr><td><strong>AMOUNT</strong></td><td>E {{amtdue}}</td></tr>                            
                             </tbody>
                             </table>
 
@@ -1297,8 +1341,8 @@
                         </div>
                   
                         <div class="panel-footer">
-                          <button type="button"  ng-click="cancelReceipt(id)" class="btn btn-primary" id="searchcustomers">Cancel Receipt</button>
-                          <button type="button" id="cancel" data-dismiss="modal" ng-click="cancelCancelRec()" class="btn btn-warning" id="cancelcancelrec">Cancel</button>
+                          <button type="button"  ng-disabled='!cancelR' ng-click="cancelReceipt(id)" class="btn btn-primary" id="searchcustomers">Cancel Receipt</button>
+                          <button type="button" ng-disabled='!cancelR' id="cancel" data-dismiss="modal" ng-click="cancelCancelRec()" class="btn btn-warning" id="cancelcancelrec">Cancel</button>
                         </div>
                       </div><!-- END PANEL -->
                     </div><!-- END COLUMN -->
@@ -1338,29 +1382,28 @@
 
                         <!-- NEW CODE starts-->
 
-                        <!-- ERROR MESSAGE DIV FOR ADD USER -->
+                        <!-- ERROR MESSAGE DIV FOR TRANSFER CASHIER -->
                         <div class="alert alert-danger alert-dismissable" ng-if="hastransferCashierError" >
                           <button type="button" class="close" data-dismiss="alert">&times;</button>
-                          <strong>Error:</strong><br>
-                          <span ng-repeat='error in addUserErrorMsgs'>{{error}}<br></span>
+                          <strong>Error : </strong><span>{{cashierTransErrorMsg}}</span>
                         </div>
 
-                        <!-- SUCCESS MESSAGE DIV FOR ADD USER -->
+                        <!-- SUCCESS MESSAGE DIV FOR  TRANSFER CASHIER -->
                         <div class="alert alert-success alert-dismissable" ng-if="cashierTransfered" >
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Success:</strong>
+                            <strong>Success : </strong>
                             <span>{{cashierTransferedMsg}}<br></span>
                         </div>
                         <!-- NEW CODE ENDS -->
 
                           <form class="form-horizontal" role="form">
                             <div class="form-group">
-                              <label for="cuname" class="col-sm-4 control-label">Cashier Number:</label>
+                              <label for="cuname" class="col-sm-4 control-label">Cashier User Name:</label>
                               <div class="col-sm-4">
-                                <input type="text" class="form-control" id="cuname" placeholder="Enter Cashier Number" ng-model="cuname" >
+                                <input type="text" class="form-control" id="cuname" placeholder="Enter Cashier User Name" ng-model="cunameT" >
                               </div>
                               <div class="col-sm-2">
-                                <button type="button" ng-click="getUser(cuname)" class="btn btn-success" id="searchusers">Search</button>
+                                <button type="button" ng-click="getUser(cunameT);showStations()" class="btn btn-success" id="searchusers">Search</button>
                               </div>
                             </div>
                           </form>
@@ -1395,7 +1438,9 @@
                             <div class="form-group">
                               <label for="transferstn" class="col-sm-4 control-label">Transfere Station:</label>
                               <div class="col-sm-6">
-                                <input type="text" class="form-control" id="transferstn" placeholder="Transfer Station" ng-model="transferStn">
+                                <select placeholder="Select station" class="form-control" id="transferstn" ng-model="transferStn">
+                                  <option ng-repeat="stn in stations" value="{{stn.stnId}}">{{stn.stnId}} | {{stn.stnName}}</option>
+                                </select>
                               </div>
                             </div>
 
@@ -1404,8 +1449,8 @@
                         </div>
                   
                         <div class="panel-footer">
-                          <button type="button"  ng-click="transfereCashier(usernmeU,transferStn)" class="btn btn-primary" id="transferecashier">Transfere</button>
-                          <button type="button" id="cancel" data-dismiss="modal" ng-click="cancelCashierTransfer()" class="btn btn-warning" id="canceltransfer">Cancel</button>
+                          <button type="button"  ng-disabled="!transfer" ng-click="transfereCashier(usernmeU,transferStn)" class="btn btn-primary" id="transferecashier">Transfere</button>
+                          <button ng-disabled="!cancelTransfer" type="button" id="cancel" data-dismiss="modal" ng-click="cancelCashierTransfer()" class="btn btn-warning" id="canceltransfer">Cancel</button>
                         </div>
                       </div><!-- END PANEL -->
                     </div><!-- END COLUMN -->
@@ -1440,15 +1485,29 @@
                         <div class="panel-heading">
                           <h3 class="panel-title">CASHIER<span class="glyphicon glyphicon-user"></h3>
                         </div>
+                        <!-- SUCCESS MESSAGE FOR ASSIGN CASHIER -->
+                        
                         <div class="panel-body">
+                        <!-- ERROR MESSAGE DIV FOR TRANSFER CASHIER -->
+                        <div class="alert alert-danger alert-dismissable" ng-if="hasAssignCashierError" >
+                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                          <strong>Error : </strong><span>{{cashierAssignErrorMsg}}</span>
+                        </div>
+
+                        <!-- SUCCESS MESSAGE DIV FOR ASSIGN CASHIER -->
+                        <div class="alert alert-success alert-dismissable" ng-if="cashierAssigned" >
+                              <button type="button" class="close" data-dismiss="alert">&times;</button>
+                              <strong>Success : </strong>
+                              <span>{{cashierAssignedMsg}}<br></span>
+                        </div>
                           <form class="form-horizontal" role="form">
                             <div class="form-group">
-                              <label for="cuname" class="col-sm-4 control-label">Cashier Number:</label>
+                              <label for="cuname" class="col-sm-4 control-label">Cashier User Name :</label>
                               <div class="col-sm-4">
-                                <input type="text" class="form-control" id="cuname" placeholder="Enter Cashier Number" ng-model="cuname" >
+                                <input type="text" class="form-control" id="cuname" placeholder="Enter Cashier User Name" ng-model="cunameA" >
                               </div>
                               <div class="col-sm-2">
-                                <button type="button" ng-click="getUser(cuname)" class="btn btn-success" id="searchusers">Search</button>
+                                <button type="button" ng-click="getUser(cunameA); showStations()" class="btn btn-success" id="searchusers">Search</button>
                               </div>
                             </div>
                           </form>
@@ -1483,21 +1542,24 @@
                             </div>
 
                             <div class="form-group">
-                              <label for="transferstn" class="col-sm-4 control-label">Transfere Station:</label>
+                              <label for="assignStn" class="col-sm-4 control-label">Assign Station:</label>
                               <div class="col-sm-6">
-                                <input type="text" class="form-control" id="transferstn" placeholder="Transfer Station" ng-model="transferStn">
+                                <select class="form-control" id="assignStn" ng-model="assignStn">
+                                  <option ng-repeat="stn in stations" value="{{stn.stnId}}">{{stn.stnId}} | {{stn.stnName}}</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="assingStartDate" class="col-sm-4 control-label">Starting Date:</label>
+                              <div class="col-sm-6">
+                                <input type="date" class="form-control" id="assingStartDate" placeholder="Assign End Date" ng-model="assingStartDate">
                               </div>
                             </div>
                             <div class="form-group">
-                              <label for="transferstn" class="col-sm-4 control-label">Starting Date:</label>
+                              <label for="assignEndDate" class="col-sm-4 control-label">End Date:</label>
                               <div class="col-sm-6">
-                                <input type="date" class="form-control" id="transferStartDate" placeholder="Transfer End Date" ng-model="transferStartDate">
-                              </div>
-                            </div>
-                            <div class="form-group">
-                              <label for="transferstn" class="col-sm-4 control-label">End Date:</label>
-                              <div class="col-sm-6">
-                                <input type="date" class="form-control" id="transferEndDate" placeholder="Transfer End Date" ng-model="transferEndDate">
+                                <input type="date" class="form-control" id="assignEndDate" placeholder="Assign End Date" ng-model="assignEndDate">
                               </div>
                             </div>
 
@@ -1506,8 +1568,8 @@
                         </div>
                   
                         <div class="panel-footer">
-                          <button type="button"  ng-click="assignCashier(cuname)" class="btn btn-primary" id="searchcustomers">Assign</button>
-                          <button type="button" id="cancel" data-dismiss="modal" ng-click="cancelCashierAssign()" class="btn btn-warning" id="canceltransfer">Cancel</button>
+                          <button type="button"  ng-disabled="!assign" ng-click="assignCashier(usernmeU,assignStn)" class="btn btn-primary" id="searchcustomers">Assign</button>
+                          <button ng-disabled="!cancelAssign" type="button" id="cancel" data-dismiss="modal" ng-click="cancelCashierAssign()" class="btn btn-warning" id="cancelAssign">Cancel</button>
                         </div>
                       </div><!-- END PANEL -->
                     </div><!-- END COLUMN -->
@@ -1515,6 +1577,106 @@
                 </div><!-- CONTAINER -->
             </div> <!-- END MODAL BODY -->
                      
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-click="closeTransferCashier()" data-dismiss="modal" >Close</button>
+            </div>
+        </div> <!-- END MODAL CONTENT -->
+    </div> <!-- END MODAL DIALOG -->
+</div> <!-- END MODAL CLASS -->
+
+
+
+<!-- RESET PASSWORD -->
+<div  class="modal fade" ng-controller="manageUsers" id="resetPsswdWarlock" tabindex="-1" role="dialog" aria-labelledby="panelLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeTransferCashier()">X</button>
+                <h3 class="modal-title" id="panelLabel">Reset Cashier Password</h3>
+            </div>
+            <div class="modal-body">
+                <div class='container-fluid'>
+                  <div class='row-fluid'>
+                    <div class='col-lg-8 col-lg-offset-2'>
+
+                      <!-- PANEL -->
+                      <div class="panel panel-success">
+                        <div class="panel-heading">
+                          <h3 class="panel-title">CASHIER<span class="glyphicon glyphicon-user"></h3>
+                        </div>
+                        <div class="panel-body">
+
+                        <!-- NEW CODE starts-->
+
+                        <!-- ERROR MESSAGE DIV FOR TRANSFER CASHIER -->
+                        <div class="alert alert-danger alert-dismissable" ng-if="haspasswdResetErr" >
+                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                          <strong>Error : </strong><span>{{passwdResetErrorMsg}}</span>
+                        </div>
+
+                        <!-- SUCCESS MESSAGE DIV FOR  TRANSFER CASHIER -->
+                        <div class="alert alert-success alert-dismissable" ng-if="passwdReset" >
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Success : </strong>
+                            <span>{{passwdResetMsg}}<br></span>
+                        </div>
+                        <!-- NEW CODE ENDS -->
+
+                          <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                              <label for="cuname" class="col-sm-4 control-label">Cashier User Name:</label>
+                              <div class="col-sm-4">
+                                <input type="text" class="form-control" id="cuname" placeholder="Enter Cashier User Name" ng-model="cunameP" >
+                              </div>
+                              <div class="col-sm-2">
+                                <button type="button" ng-click="getUser(cunameP)" class="btn btn-success" id="searchusers">Search</button>
+                              </div>
+                            </div>
+                          </form>
+
+                          <div class="col-sm-10" ng-show="hasuserinfo">
+                            <form class="form-horizontal" role="form">
+                                                     
+                            <div class="form-group">
+                              <label for="usernme" class="col-sm-4 control-label">First Name:</label>
+                              <div class="col-sm-6">
+                                <input type="text" class="form-control" id="firstnameU" placeholder="SEC0000" ng-model="firstnameU" ng-readonly="true">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="firstname" class="col-sm-4 control-label">Last Name:</label>
+                              <div class="col-sm-6">
+                                <input type="text" class="form-control" id="lastnameU" placeholder="First Name" ng-model="lastnameU" ng-readonly="true">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="cPasswd1" class="col-sm-4 control-label">New Password:</label>
+                              <div class="col-sm-6">
+                                <input type="password" class="form-control" id="cPasswd1" placeholder="New Password" ng-model="cPasswd1">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="cPasswd2" class="col-sm-4 control-label">Repeat New Password:</label>
+                              <div class="col-sm-6">
+                                <input type="password" class="form-control" id="cPasswd2" placeholder="Repeat New Password" ng-model="cPasswd2">
+                              </div>
+                            </div>
+                          
+                          </form>
+                          </div>
+                        </div>
+                  
+                        <div class="panel-footer">
+                          <button type="button"  ng-disabled="!resetP" ng-click="resetCPassword(usernmeU, cPasswd1, cPasswd2)" class="btn btn-primary" id="resetCPassword">Reset Password</button>
+                          <button type="button" ng-disabled="!resetP" id="cancel" data-dismiss="modal" ng-click="cancelResetPassword()" class="btn btn-warning" id="canceltransfer">Cancel</button>
+                        </div>
+                      </div><!-- END PANEL -->
+                    </div><!-- END COLUMN -->
+                  </div><!-- END ROW -->
+                </div><!-- CONTAINER -->
+            </div> <!-- END MODAL BODY -->
+                     
+           
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-click="closeTransferCashier()" data-dismiss="modal" >Close</button>
             </div>

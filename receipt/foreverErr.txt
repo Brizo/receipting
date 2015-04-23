@@ -1,0 +1,15 @@
+
+/home/brian/Documents/SEC/Projects/GIT/receipting/receipt/api.js:7
+    databaseUrl = 147.110.192.71,147.110.192.100,147.110.186.221/receipting?sl
+                         ^^^^
+SyntaxError: Unexpected number
+    at Module._compile (module.js:439:25)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Module.require (module.js:364:17)
+    at require (module.js:380:17)
+    at Object.<anonymous> (/home/brian/Documents/SEC/Projects/GIT/receipting/receipt/app.js:4:23)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)

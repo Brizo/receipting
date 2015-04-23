@@ -16,6 +16,11 @@
         <span ng-repeat='error in loginErrorMsgs'>{{error}}<br></span>
       </div>
 
+      <div class="alert alert-info alert-dismissable" ng-if="hasLoginInfo" >
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Error:</strong><span>{{loginInfoMsg}}<br></span>
+      </div>
+
       <!-- HEADER AND LOGO DIV, DISPLAYED ON LOGIN -->
       <div class='row-fluid' ng-if="loginstatus">
         <div class='col-lg-4 col-lg-offset-4'>
@@ -74,29 +79,29 @@
                                 <h3 class="panel-title">RECEIPTS<span class="glyphicon glyphicon-user"></h3>
                               </div>
                               <div class="panel-body">
-                                <table id="showReceiptsTbl" class="rectable table table-striped table-bordered" cellspacing="0" width="100%">
-                                  <thead>
-                                    <tr>
-                                      <th><strong>Rec No</strong></th>
-                                      <th><strong>Customer</strong></th>
-                                      <th><strong>Cashier</strong></th>
-                                      <th><strong>Date</strong></th>
-                                      <th><strong>Action</strong></th>
-                                    </tr>
-                                  </thead>
-                                  <tfoot>
-                                    <tr>
-                                      <th><strong>Rec No</strong></th>
-                                      <th><strong>Customer</strong></th>
-                                      <th><strong>Cashier</strong></th>
-                                      <th><strong>Date</strong></th>
-                                      <th><strong>Action</strong></th>
-                                    </tr>
-                                  </tfoot>                           
-                                  <tbody id="showRecTblData">
-                                  </tbody>
-                                </table>
-                              </div> <!-- END PANEL BODY -->
+                                <div ng-controller="reprintRTblCtrl as showCase">
+                                  <table datatable="ng" class="table table-striped table-bordered" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns">
+                                    <thead>
+                                      <tr>
+                                        <th><strong>Rec No</strong></th>
+                                        <th><strong>Customer</strong></th>
+                                        <th><strong>Cashier</strong></th>
+                                        <th><strong>Date</strong></th>
+                                        <th><strong>Action</strong></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr ng-repeat="receipt in receipts">
+                                        <td>{{ receipt.recNum }}</td>
+                                        <td>{{ receipt.custName }}</td>
+                                        <td>{{ receipt.cashier }}</td>
+                                        <td>{{ receipt.recDate }}</td>
+                                        <td><a data-dismiss="modal" data-toggle="modal" ng-click="reprintReceipt(receipt.recNum)"><button>Print</button></a></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
                               <div class="panel-footer">                                                                  
                               </div>
                             </div><!-- END PANEL -->
@@ -551,6 +556,7 @@
                                                     <input type="hidden" class="form-control" id="rectypeCP" ng-model="recTypeCP" ng-init="recTypeCP='capital'">
                                                   </div>
                                                 </div>
+
                                                 <div class="form-group">
                                                   <label for="payMeth" class="col-sm-4 control-label">Pay Method:</label>
                                                   <div class="col-sm-6">
@@ -1008,17 +1014,5 @@
 
     <% include modals %>
   </div> <!-- MANAGE USERS CONTROLLER ENDS -->  
-  <script type="text/javascript" src="/js/jquery.js"></script>
-  <script type="text/javascript" src="js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
-  <script type="text/javascript" src="js/bootstrap-datetimepicker.fr.js"></script>
-  <script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="/js/angular/angular.min.js"></script>
-  <script type="text/javascript" src="/js/angular-datatables.min.js"></script>
-  <script type="text/javascript" src="/js/angular-datatables.bootstrap.min.js"></script>
-  <script type="text/javascript" src="/js/mkActivePane.js"></script>
-  <script type="text/javascript" src="/clientApp.js"></script>
-  <script type="text/javascript" src="/js/services.js"></script>
-  <script type="text/javascript" src="/js/controllers.js"></script>
 </body>
 </html>

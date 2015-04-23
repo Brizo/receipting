@@ -2,15 +2,19 @@ var express         = require('express'),
     path            = require('path'),
     fs              = require('fs'),
     api             = require('./api'),
-    app = express();
+    session         = require('express-session'),
+    cookieParser    = require('cookie-parser'),
+    app             = express();
+    PORT            = process.env.PORT || 3000;
 
 app
-    .use(express.static(path.join(__dirname, 'public')))
-    .use('/api',api)
     .set('views', path.join(__dirname, 'views'))
     .set('view engine', 'ejs')
-    .get('/', function(req, res) {
-        res.render('index');
+    .use(express.static(path.join(__dirname, 'public')))
+    .use('/api',api)
+    .get('/', function (req, res){
+        res.render('index')
     });
 
-module.exports = app;
+app.listen(PORT);
+console.log('server started on port %s', PORT);

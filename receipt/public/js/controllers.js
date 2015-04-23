@@ -17,6 +17,14 @@ angular.module('receipt')
 		$scope.loginError = "Enter Your id";
 		$scope.userRemoved = false;
 		$scope.changePwd = false;
+		$scope.transferStn = '--select--';
+		$scope.assignStn = '--select--';
+		$scope.assign = false;
+		$scope.setParams = false;
+		$scope.transfer = false;
+		$scope.cancelAssign = false;
+		$scope.cancelTransfer = false;
+		$scope.resetP = false;
 
 		// get Station values from local station params file
 		// Then use info to create a service to store station info
@@ -77,6 +85,7 @@ angular.module('receipt')
 		// define errors and if none, capture current loggd user info in a service
 		// get user info from service , loggin user, create batch and log loggin action
 		$scope.authenticate = function(){
+		
 			$scope.loginErrorMsgs = [];
 			$scope.userformroles = [];
 			var userroleError = "Choose at least one role";
@@ -88,7 +97,7 @@ angular.module('receipt')
 			var cashierRError = "You are not registered as a cashier";
 			var reportRError = "You do not have access to reports";
 			var eftuRError = "You do not have access to EFT uploading";
-			var userPassAgeError = "Your password has expired, You need to change it";
+			var userPassAgeError = "Your password has expired/was reset, You need to change it";
 
 			// get login values from form and set loginuser
 			var loginUser = {uname:$scope.uname, passkey:$scope.passkey};
@@ -107,15 +116,12 @@ angular.module('receipt')
 		      	$scope.lastnameD = data.lastname;
 		      	$scope.userstationD = data.station;
 		      	$scope.userolesD = data.roles;
+		      	$scope.passwordState = data.passtate;
 
 		      	if ($scope.uname != $scope.usernameD && $scope.passkey != $scope.userpassD) {
 		      		$scope.loginErrorMsgs.push(userNpssWdError);
 					$scope.hasLoginError = true;
-				} else if ($scope.passageD > 2 && ($scope.newPasskey != null)) {
-		      		$scope.loginErrorMsgs.push(userPassAgeError);
-					$scope.hasLoginError = true;
-					$scope.changePwd = true;
-				} else if (($scope.currentStn != null) && ($scope.userstationD != $scope.currentStn.stnnum)) {
+				} else if (($scope.cashierrole) && (($scope.currentStn != null) && ($scope.userstationD != $scope.currentStn.stnnum))) {
 		      		$scope.loginErrorMsgs.push(userStnError);
 					$scope.hasLoginError = true;
 				} else if (!$scope.adminrole && !$scope.suprole && !$scope.cashierrole && !$scope.reprole && !$scope.efturole) {
@@ -139,7 +145,12 @@ angular.module('receipt')
 				} else if ($scope.reprole && ($scope.userolesD.indexOf("report") <= -1)) {
 					$scope.loginErrorMsgs.push(reportRError);
 					$scope.hasLoginError = true;
-		      	}else {
+				/*} else if (($scope.passageD > 2 && ($scope.newPasskey != null)) || ($scope.passwordState == "reset")) {
+		      		/*$scope.loginInfoMsg = userPassAgeError;
+					$scope.hasLoginInfo = true;
+					$scope.changePwd = true;
+					changePasswd.openchPsswdModal();*/
+		      	} else {
 					$scope.loginState = "Logged In";
 
 					// define currently loggedin user
@@ -204,7 +215,7 @@ angular.module('receipt')
 
 		            	$scope.isEftu = true;
 					}
-					if ($scope.cashierrole && ($scope.userolesD.indexOf("cashier") > -1)) {
+					if ($scope.cashierrole && ($scope.userolesD.indexOf("cashier") > -1)) {					
 						$scope.isCashier = true;
 						var cashier = true;
 						manageData.setCashier(cashier);
@@ -212,8 +223,31 @@ angular.module('receipt')
 					if ($scope.reprole && ($scope.userolesD.indexOf("report") > -1)) {
 						$scope.isReporter = true;
 					}
-		          
-		            $scope.loginstatus = false;
+
+					// set first selected user role tab active
+					if($scope.isAdmin){
+						setTimeout(function(){
+							$('#adminTab').addClass("active");
+						},200);
+					} else if ($scope.isSup) {
+						setTimeout(function(){
+							$('#supTab').addClass("active");
+						},200);
+					} else if ($scope.isEftu) {
+						setTimeout(function(){
+							$('#eftuTab').addClass("active");
+						},200);
+					} else if ($scope.isCashier) {
+						setTimeout(function(){
+							$('#cashierTab').addClass("active");
+						},200);
+					} else if (isReporter) {
+						setTimeout(function(){
+							$('#reportTab').addClass("active");
+						},200);
+					}
+
+					$scope.loginstatus = false;
 					$scope.hasLoginError = false;
 
 					$scope.changePwd = true;
@@ -318,7 +352,7 @@ angular.module('receipt')
 				}
 
 				//create user object from form
-				var newuser = {uname:$scope.usernme, passkey:$scope.userpss, firstname:$scope.firstname, lastname:$scope.lastname, station:$scope.stnNum, roles:userroles, passdate:Date().toString()};
+				var newuser = {uname:$scope.usernme, passkey:$scope.userpss, passtate:"ok", firstname:$scope.firstname, lastname:$scope.lastname, station:$scope.stnNum, roles:userroles, passdate:Date().toString()};
 
 				manageData.insertUser(newuser)
 		            .success(function (resp) {
@@ -387,40 +421,70 @@ angular.module('receipt')
 		}
 
 		$scope.getUser = function (uName) {
-			$scope.cuname = '';
-			var username = {username:uName};
-			$http.post('/api/getUser/', username).success(function(data) {
-		      	// used to display edit user form when user is found
-		      	if (data == "User not in database") {
-		      		$scope.hasuserinfo = false;
-		      		$scope.userExist = false;
-		      	} else {
-		      		$scope.usernmeU = data.uname;
-			      	$scope.userpssU = data.passkey;
-			      	$scope.firstnameU = data.firstname;
-			      	$scope.lastnameU = data.lastname;
-			      	$scope.currentStnU = data.station;
-			      	var useroles = data.roles; //array of user roles
-		      		$scope.hasuserinfo = true;
-		      		$scope.userExist = true;
-		      	
-			      	//retrieve user roles
-			      	if (useroles.indexOf("admin") > -1) {
-			      		$scope.adminRoleU = true;
+			if (uName == null) {
+				$scope.hastransferCashierError = true;
+		      	$scope.hasAssignCashierError = true;
+		      
+				$scope.cashierTransErrorMsg = "Enter cashier username";
+				$scope.cashierAssignErrorMsg = "Enter cashier username";
+			} else {
+				$scope.assign = true;
+				$scope.transfer = true;
+				$scope.cancelAssign = true;
+				$scope.cancelTransfer = true;
+				$scope.cuname = '';
+				var username = {username:uName};
+				$http.post('/api/getUser/', username).success(function(data) {
+			      	// used to display edit user form when user is found
+			      	if (data == "User not in database") {
+			      		$scope.hasuserinfo = false;
+			      		$scope.userExist = false;
+			      		$scope.hastransferCashierError = true;
+			      		$scope.hasAssignCashierError = true;
+			      
+						$scope.cashierTransErrorMsg = "Entered cashier does not exist";
+						$scope.cashierAssignErrorMsg = "Entered cashier does not exist";
+				
+			      	} else {
+			      		$scope.usernmeU = data.uname;
+				      	$scope.userpssU = data.passkey;
+				      	$scope.firstnameU = data.firstname;
+				      	$scope.lastnameU = data.lastname;
+				      	$scope.currentStnU = data.station;
+				      	var useroles = data.roles; //array of user roles
+			      		$scope.hasuserinfo = true;
+			      		$scope.userExist = true;
+			      		$scope.cashierTransfered = false;
+			      		$scope.cashierTransferedMsg = '';
+			      		$scope.cashierAssigned = false;
+			      		$scope.cashierAssignedMsg = '';
+			      		$scope.hastransferCashierError = false;
+			      		$scope.hasAssignCashierError = false;
+			      		$scope.cunameT = '';
+			      		$scope.cunameA = '';
+			      		$scope.cunameP = '';
+						$scope.cashierTransErrorMsg = "";
+						$scope.cashierAssignErrorMsg = "";
+						$scope.resetP = true;
+			      	
+				      	//retrieve user roles
+				      	if (useroles.indexOf("admin") > -1) {
+				      		$scope.adminRoleU = true;
+				      	}
+				      	if (useroles.indexOf("sup") > -1) {
+				      		$scope.roleSupU = true;
+				      	}
+				      	if (useroles.indexOf("cashier") > -1) {
+				      		$scope.cashierRoleU = true;
+				      	}
+				      	if (useroles.indexOf("report") > -1) {
+				      		$scope.reproleU = true;
+				      	}
 			      	}
-			      	if (useroles.indexOf("sup") > -1) {
-			      		$scope.roleSupU = true;
-			      	}
-			      	if (useroles.indexOf("cashier") > -1) {
-			      		$scope.cashierRoleU = true;
-			      	}
-			      	if (useroles.indexOf("report") > -1) {
-			      		$scope.reproleU = true;
-			      	}
-		      	}
-		    }).error (function (error) {
-		    	console.log(error);
-		    })
+			    }).error (function (error) {
+			    	console.log(error);
+			    })
+			}
 		}
 
 		$scope.updateUser = function (user) {
@@ -474,6 +538,24 @@ angular.module('receipt')
 			});
 		}
 
+		$scope.resetCPassword = function (uname, passwd1, passwd2) {
+			if (passwd1 !== passwd2) {
+				$scope.haspasswdResetErr = true;
+				$scope.passwdResetErrorMsg = "Entered passwords do no match";
+			} else {
+				var cashier = {username:uname,newPasswd:passwd2};
+				$http.post('/api/resetCPsswd', cashier).success(function(resp) {
+					$scope.passwdReset = true;
+					$scope.passwdResetMsg = resp;
+					$scope.revetCpasswdR();
+				});
+			}
+		}
+
+		$scope.revetCpasswdR = function () {
+			$scope.hasuserinfo = false;
+		}
+
 		$scope.removeUser = function (uname) {
 			$scope.clearAlerts();
 			var username = {uname:uname};
@@ -510,43 +592,58 @@ angular.module('receipt')
 		$scope.closeTransferCashier = function () {
 			$scope.hasuserinfo = false;
 			$scope.cuname = '';
+			$scope.transfer = false;
+			$scope.cancelTransfer = false;
 		}
 
 		$scope.closeAssignCashier = function () {
 			$scope.hasuserinfo = false;
 			$scope.cuname = '';
+			$scope.assign = false;
+			$scope.cancelAssign = false;
 		}
 
 		$scope.cancelCashierTransfer = function () {
 			$scope.hasuserinfo = false;
 			$scope.clearEditUser();
+			$scope.transfer = false;
+			$scope.cancelTransfer = false;
 		}
 
 		$scope.cancelCashierAssign = function () {
 			$scope.hasuserinfo = false;
 			$scope.clearEditUser();
+			$scope.assign = false;
+			$scope.cancelAssign = false;
 		}
 
 		$scope.transfereCashier = function (uname, stn) {
-			$scope.cashierTransfered = false;
-			$scope.cashierTransferedMsg = "Cashier Successfuly Transfered";
-			var updateCashier = {cashierId:uname,station:stn};
+			if (stn == '--select--') {
+				$scope.hastransferCashierError = true;
+				$scope.cashierTransErrorMsg = "Select transfer station";
+			} else {
+				$scope.hastransferCashierError = false;  
+				$scope.cashierTransErrorMsg = "";
+				$scope.cashierTransfered = false;
+				$scope.cashierTransferedMsg = "Cashier Successfuly Transfered";
+				var updateCashier = {cashierId:uname,station:stn};
 
-			$http.post('/api/api/transfereCashier', updateCashier).success(function (resp){
-				$scope.cashierTransfered = true;
-				$scope.cashierTransferedMsg = resp;
-				$scope.clearTransferC();
-				$scope.hasuserinfo = false;
-				
-				// log login event
-				if ($scope.currentStn == null) {
-					var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
-				} else {
-					var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
-				}
-				recSwitch.insertLog(log).success(function () {
+				$http.post('/api/transfereCashier', updateCashier).success(function (resp){
+					$scope.cashierTransfered = true;
+					$scope.cashierTransferedMsg = resp;
+					$scope.clearTransferC();
+					$scope.hasuserinfo = false;
+					
+					// log login event
+					if ($scope.currentStn == null) {
+						var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+					} else {
+						var log = {action:"transfereCashier", transferedCashier:uname, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
+					}
+					recSwitch.insertLog(log).success(function () {
+					});
 				});
-			});
+			}
 		}
 
 		$scope.clearTransferC = function () {
@@ -556,28 +653,95 @@ angular.module('receipt')
 			$scope.transferStn = '';
 		}
 
-		$scope.assignCashier = function (id) {
-			var cashierId = id;
-			var updateCashier = {station:$scope.transferStn, startDate : $scope.transferStartDate, endDate: $scope.transferEndDate};
-			$http.post('/api/api/assignCashier/' + cashierId, updateCashier).success(function (resp){
-				// log login event
-				if ($scope.currentStn == null) {
-					var log = {action:"assignCashier", assignedCashier:cashierId, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
-				} else {
-					var log = {action:"assignCashier", assignedCashier:cashierId, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
-				}
-				recSwitch.insertLog(log).success(function () {
-				});
-			})
-		}
+		$scope.genZero = function(field,alocSpace){
+	        var myfield = field.toString();
+	        if (myfield.length < alocSpace) {
+	            while (myfield.length < alocSpace) {
+	                myfield = "0"+myfield;
+	            }
+	        } else {
+	        	myfield = myfield.substring(0, alocSpace);
+	        }
+
+	        return myfield;
+    	}
+
+    	$scope.assignCashier = function (uname, stn) {
+    		console.log(uname);
+    		console.log(stn);
+    		console.log($scope.assignStartDate);
+    		if (stn == '--select--') {
+		      	$scope.hasAssignCashierError = true;
+				$scope.cashierAssignErrorMsg = "Select assign station";
+    		} else {
+    			$scope.hasAssignCashierError = false;
+			    $scope.cashierAssignErrorMsg = "";
+		        $scope.cashierAssigned = false;
+		        $scope.userHasBeenAssigned = false;
+		        $scope.cashierAssignedMsg = "Cashier Successfuly Assigned";	
+
+		        var updateCashier = {
+		            assignStatus:"pending",
+		            uname:uname,
+		            currStn:$scope.currentStnU,
+		            station:stn, 
+		            currentDate: new Date(),
+		            startDate : $scope.assignStartDate, 
+		            endDate: $scope.assignEndDate
+		        };
+
+		        $http.post('/api/getAssigned/',updateCashier).success(function(data) {
+		            if (data == "User not in database") {
+		                $scope.userHasBeenAssigned = false;
+		            } else {
+		                console.log("User is found!!");
+		                $scope.userHasBeenAssigned = true;
+		            }
+		        });
+
+		        setTimeout(function(){
+		            if ($scope.userHasBeenAssigned == false) {
+		                $http.post('/api/assignCashierInsert/',updateCashier).success(function (resp){
+		                    $scope.cashierAssigned = true;
+		                    $scope.cashierAssignedMsg = resp;
+		                    console.log("Doing Insert Assignment!");
+		                    // log login event
+		                    if ($scope.currentStn == null) {
+		                        var log = {action:"assignCashier", assignedCashier:$scope.usernameU, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+		                    } else {
+		                        var log = {action:"assignCashier", assignedCashier:$scope.usernameU, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
+		                    }
+		                    recSwitch.insertLog(log).success(function () {
+
+		                    });
+		                });
+		            } else if ($scope.userHasBeenAssigned){
+		                $http.post('/api/assignCashier/',updateCashier).success(function (resp){
+		                    $scope.cashierAssigned = true;
+		                    $scope.cashierAssignedMsg = resp;
+		                    console.log("Doing Actual Assignment!");
+		                    // log login event
+		                    if ($scope.currentStn == null) {
+		                        var log = {action:"assignCashier", assignedCashier:$scope.usernameU, actionBy:$scope.currUser.username, station:"none", time:Date().toString()};
+		                    } else {
+		                        var log = {action:"assignCashier", assignedCashier:$scope.usernameU, actionBy:$scope.currUser.username, station:$scope.currentStn.stnnum, time:Date().toString()}; 
+		                    }
+		                    recSwitch.insertLog(log).success(function () {
+
+		                    });
+		                });
+		            }
+		        }, 200);
+    		}
+    	}
 
 		$scope.refreshCust = function(){
-			$http.post('/api/api/refreshCust').success(function(resp){
+			$http.post('/api/refreshCust').success(function(resp){
 			});
 		}
 
 		$scope.refreshQuotes = function(){
-			$http.post('/api/api/refreshQuotes').success(function(resp){
+			$http.post('/api/refreshQuotes').success(function(resp){
 			});
 		}
 
@@ -595,6 +759,13 @@ angular.module('receipt')
 				$scope.quotations = data;
 			});
 	    }
+
+	    $scope.showCustomers = function(){
+			$http.post('/api/showAllCustomers').success(function (data) {
+				$scope.customers = data;
+			});
+		}
+
 	}])//manageUsers controller ends
 
 	.controller('stationCtrl',['$q','$scope','$http','$compile', 'recSwitch','manageData', function($q,$scope, $http, $compile, recSwitch,manageData){
@@ -606,12 +777,21 @@ angular.module('receipt')
 		$scope.hasStation = false;
 		$scope.hasPStation = false;
 		$scope.stnRemoved = false;
+		$scope.hasParamsSetError = false;
+		$scope.setParamsErrMsg = "";
+		$scope.stnBankCode = '--select--';
+		$scope.stnAccount = '--select--';
 
 		// Get station and user information from service
 		$scope.currStation = manageData.getCurrStation();
 		$scope.currUser = manageData.getCurrLoginUser();
 
-
+		$scope.getBanks = function () {
+			$http.post('/api/showAllBanks').success(function (resp) {
+				$scope.banks = resp;
+				console.log("It got banks");
+			});
+		}
 		$scope.showStations = function(){
 		 	manageData.getStations()
 		    	.then(function (data) {
@@ -636,20 +816,20 @@ angular.module('receipt')
 			if ($scope.stnId == null){;
 				$scope.addStationErrorMsgs.push(stationIdError);
 				$scope.hasAddStationError = true;
-			}else if (!Number($scope.stnId)) {
+			} else if (!Number($scope.stnId)) {
 				$scope.addStationErrorMsgs.push(stationNotNumError);
 				$scope.hasAddStationError = true;
-			}else if ($scope.stnName == null){;
+			} else if ($scope.stnName == null){;
 				$scope.addStationErrorMsgs.push(stationNameError);
 				$scope.hasAddStationError = true;
-			}else if ($scope.stnBatchCode == null){
+			} else if ($scope.stnBatchCode == null){
 				$scope.addStationErrorMsgs.push(stationBCodeError);
 				$scope.hasAddStationError = true;
-			}else if ($scope.stnAccount == null){
-				$scope.addStationErrorMsgs.push(stationAccntError);
-				$scope.hasAddStationError = true;
-			}else if ($scope.stnBankCode == null){
+			} else if ($scope.stnBankCode == '--select--'){
 				$scope.addStationErrorMsgs.push(stationBnkCError);
+				$scope.hasAddStationError = true;
+			} else if ($scope.stnAccount == '--select--'){
+				$scope.addStationErrorMsgs.push(stationAccntError);
 				$scope.hasAddStationError = true;
 			}else{
 				// station object definition
@@ -698,18 +878,37 @@ angular.module('receipt')
 		}
 
 		$scope.getParamStation = function (stnId) {
-			$scope.hasPStation = true;
-			var id = Number(stnId);
-			
-			manageData.getStation(stnId)
-				.then(function(data) {
-			      	$scope.stnIdParam = data.stnId;
-			      	$scope.stnNameParam = data.stnName;
-			      	$scope.stnBatchCodeParam = data.stnBatchCode;
-			      	$scope.stnLastBatchParam = data.stnLastBatch;
-			      	$scope.stnLastReceiptParam = data.stnLastReceipt;      		      	
-			    });
-		}
+			console.log(stnId);
+			if (stnId == undefined) {
+				$scope.hasParamsSetError = true;
+				$scope.setParamsErrMsg = "Enter station";
+			} else if (isNaN(stnId)) {
+				$scope.hasParamsSetError = true;
+				$scope.setParamsErrMsg = "Station number should be numeric";
+			} else {
+				$scope.stnNumParam = '';
+				var id = Number(stnId);
+				
+				manageData.getStation(stnId)
+					.then(function(data) {
+						console.log(data);
+						if (data == "Station not in database") {
+							$scope.hasParamsSetError = true;
+							$scope.setParamsErrMsg = "Entered station does not exist";
+						} else {
+							$scope.hasParamsSetError = false;
+							$scope.setParamsErrMsg = "";
+							$scope.hasPStation = true;
+							$scope.setParams = true;
+							$scope.stnIdParam = data.stnId;
+					      	$scope.stnNameParam = data.stnName;
+					      	$scope.stnBatchCodeParam = data.stnBatchCode;
+					      	$scope.stnLastBatchParam = data.stnLastBatch;
+					      	$scope.stnLastReceiptParam = data.stnLastReceipt; 
+						}     		      	
+				    });
+				}
+			}
 
 		$scope.clearStationParam = function () {
 			$scope.stnNumParam = '';
@@ -725,6 +924,7 @@ angular.module('receipt')
 		$scope.closeSetParams = function (){
 			$scope.clearStationParam();
 			$scope.hasPStation = false;
+			$scope.setParams = false;
 		}
 
 		$scope.updateStation = function (stnId) {
@@ -842,19 +1042,7 @@ angular.module('receipt')
 
 		$scope.showCustomers = function(){
 			$http.post('/api/showAllCustomers').success(function (data) {
-				custData = '';
-				data.forEach(function(customer){
-					custData += '<tr><td>'+customer.Account+'</td><td>'+customer.NAME+'</td><td>'+customer.DEPOT_NAME+'</td><td>'+customer.Address+'</td></tr>';
-				});
-				
-				$('#showCustTblData').html('');
-				var $custData1 = $(custData).appendTo('#showCustTblData');
-				$compile($custData1)($scope);
-				//$('#adminTab').on('click', '#adminUsers', function(){
-					$('.custable').dataTable();
-					//});
-							
-			}).error(function (){
+				$scope.customers = data;
 			});
 		}
 
@@ -1014,7 +1202,11 @@ angular.module('receipt')
 		$scope.secFeeCheckd = false;
 		$scope.totalAmnt = 0;
 		$scope.eftStnSelected = false;
-
+		$scope.oneChosen = false;
+		$scope.hasMultipayR = false;
+		$scope.cancelMPay = false;
+		$scope.cancelR = false;
+		
 		$scope.$watch('payMethSPU', function(newValue,scope) {
             $scope.choseChequeSPU = false;
             $scope.choseTransferSPU = false;
@@ -1026,7 +1218,7 @@ angular.module('receipt')
                 $scope.choseChequeSPU = false;
                 $scope.choseTransferSPU = false;
             };
-                $scope.recDate = Date().toString();
+            $scope.recDate = Date().toString();
         });
     
         $scope.$watch('payMethCP', function(newValue,scope) {
@@ -1047,7 +1239,7 @@ angular.module('receipt')
             $scope.choseChequeOP = false;
             $scope.choseTransferOP = false;
             if (newValue == "Cheque"){
-        	    $scope.choseChequeOP = true;
+                $scope.choseChequeOP = true;
             } else if (newValue == "Transfer") {
                 $scope.choseTransferOP = true;
             }else {
@@ -1084,7 +1276,7 @@ angular.module('receipt')
             };
             $scope.recDate = Date().toString();
         });
-        // END OF WATCHERS
+		// END OF WATCHERS
 
 		// Get station and user information from service
 		$scope.currStation = manageData.getCurrStation();
@@ -1135,7 +1327,9 @@ angular.module('receipt')
 
 		$scope.getCustomer = function (custNo, type) {
 			var num = custNo;
+
 			$http.post('/api/getCustomer', {custno:num}).success(function(data){
+
 				// customer information from database
 				if (type == 'spu'){
 					$scope.custCurrBSPU = data.Current_Balance;
@@ -1170,6 +1364,7 @@ angular.module('receipt')
 
 		$scope.getQuotation = function (quoteRef){
 			var ref = quoteRef;
+
 			$http.post('/api/getQuotation', {QuoteDesc:ref}).success(function(data) {
 				// quotation from database
 				$scope.quotes = data;
@@ -1214,7 +1409,145 @@ angular.module('receipt')
 			}).error(function (){
 			});
 		}
-		
+		// reprint receipt
+		$scope.reprintReceipt = function(receiptNo) {
+			$http.post('/api/getReceipt', {recNo:receiptNo}).success(function (data) {
+				$scope.receiptR = data;
+				if($scope.receiptR.recType == "spu") {
+						//REPRINT SPU RECEIPT
+			            spuRecR = [
+						  	'<body>',
+	                        '<table>',
+			                '<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+	                   		'<tr><td colspan=2><center><b>Payment Receipt **R**</b></center></td></tr>',
+						  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.receiptR.recNum+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.receiptR.recBatch+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.receiptR.transNo+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.receiptR.recDate+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Account No:</b></span></td><td><span><i>'+$scope.receiptR.account+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Customer</b></span></td><td><span>'+$scope.receiptR.custName+'</span><br><span>'+$scope.receiptR.custAddr+'</span><br><span>'+$scope.receiptR.custCity+'</span></td><td>&nbsp;</td></tr>',
+						  	'<tr><td><span><b>Pay Method:</b></span></td><td><span><i>'+$scope.receiptR.payMeth+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Tendered:</b></span></td><td><span><i>E '+$scope.receiptR.amttendered+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$scope.receiptR.change+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.receiptR.cashier+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.receiptR.station+'</i></span></td></tr>',
+						  	'</table>',
+						  	'</body>',
+							'<hr>'].join('\n');
+						
+						$http.post('http://localhost:3080/print', {spuRec:spuRecR}).success(function (resp) {
+						});
+					}else if ($scope.receiptR.recType == "deposits") {
+						//REPRINT DEPOSITS RECEIPT
+						capRecR = [
+							'<body>',
+	                        '<table>',
+	                     	'<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+			                '<tr><td colspan=2><center><b>Payment Receipt **R**</b></center></td></tr>',
+							'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.receiptR.recNum+'</i></span></td></tr>',
+							'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.receiptR.recBatch+'</i></span></td></tr>',
+							'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.receiptR.transNo+'</i></span></td></tr>',
+							'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.receiptR.recDate+'</i></span></td></tr>',
+							'<tr><td><span><b>Quotation:</b></span></td><td><span><i>'+$scope.receiptR.quoteRef+'</i></span></td></tr></table>',
+							'<table><tr><td><span><b>Customer</b></span></td><td><span>'+$scope.quotes.custName+'</span><br></td></tr></table>',
+							'<tr><td><span><b>Paid By:</b></span></td><td><span><i>'+$scope.receiptR.payMeth+'</i></span></td></tr>',
+							'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+							'<tr><td><span><b>Tendered:</b></span></td><td><span><i>E '+$scope.receiptR.amttendered+'</i></span></td></tr>',
+							'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$scope.receiptR.change+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.receiptR.cashier*'</i></span></td></tr>',
+						  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.receiptR.station+'</i></span></td></tr>',
+							'</table>',
+							'</body>',
+							'<hr>'].join('\n');
+						  	
+						  	$http.post('http://localhost:3080/print', {spuRec:capRecR}).success(function (resp) {
+						    
+							});				
+					}else if ($scope.receiptR.recType == "capital"){
+						//REPRINT CAPITAL RECEIPT
+						capRecR = [
+						  	'<body>',
+	                        '<table>',
+	                		'<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+			                '<tr><td colspan=2><center><b>Payment Receipt **R**</b></center></td></tr>',
+						  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.receiptR.recNum+'</i></span></td></tr>',
+							'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.receiptR.recBatch+'</i></span></td></tr>',
+							'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.receiptR.transNo+'</i></span></td></tr>',
+							'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.receiptR.recDate+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Quotation:</b></span></td><td><span><i>'+$scope.receiptR.quoteRef+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Customer</b></span></td><td><span>'+$scope.receiptR.custName+'</span><br></td></tr>',
+						  	'<tr><td><span><b>Paid By:</b></span></td><td><span><i>'+$scope.receiptR.payMeth+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scopereceiptR.receiptR.amtdue+'</i></span></td></tr>',
+							'<tr><td><span><b>Tendered:</b></span></td><td><span><i>E '+$scope.receiptR.amttendered+'</i></span></td></tr>',
+							'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$scope.receiptR.change+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.receiptR.cashier*'</i></span></td></tr>',
+						  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.receiptR.station+'</i></span></td></tr>',
+						  	'</table>',
+						  	'</body>',
+							'<hr>'].join('\n');
+						  	
+						  	$http.post('http://localhost:3080/print', {spuRec:capRecR}).success(function (resp) {
+						   
+						  	});
+					} else if ($scope.receiptR.recType == "visits") {
+						//REPRINT VISITS RECEIPT
+						vtRecR = [
+						  	'<body>',
+	                        '<table>',
+	                		'<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+			                '<tr><td colspan=2><center><b>Payment Receipt **R**</b></center></td></tr>',
+						  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.receiptR.recNum+'</i></span></td></tr>',
+							'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.receiptR.recBatch+'</i></span></td></tr>',
+							'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.receiptR.transNo+'</i></span></td></tr>',
+							'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.receiptR.recDate+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Customer :</b></span></td><td><span><i>'+$scope.custName+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Method:</b></span></td><td><span><i>'+$scope.receiptR.payMeth+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scopereceiptR.receiptR.amtdue+'</i></span></td></tr>',
+							'<tr><td><span><b>Tendered:</b></span></td><td><span><i>E '+$scope.receiptR.amttendered+'</i></span></td></tr>',
+							'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$scope.receiptR.change+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.receiptR.cashier*'</i></span></td></tr>',
+						  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.receiptR.station+'</i></span></td></tr>',
+						  	'</table>',
+							'</body>',
+							'<hr>'].join('\n');
+						
+						$http.post('http://localhost:3080/print', {spuRec:vtRecR}).success(function (resp) {
+						  
+						});
+					} else if ($scope.receiptR.recType == "otherPayments") {
+						//REPRINT OTHER PAYMENTS RECEIPT
+						opRecR = [
+						    '<body>',
+	                        '<table>',
+	                		'<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+			                '<tr><td colspan=2><center><b>Payment Receipt **R**</b></center></td></tr>',
+						  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.receiptR.recNum+'</i></span></td></tr>',
+							'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.receiptR.recBatch+'</i></span></td></tr>',
+							'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.receiptR.transNo+'</i></span></td></tr>',
+							'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.receiptR.recDate+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Customer :</b></span></td><td><span><i>'+$scope.custName+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Method:</b></span></td><td><span><i>'+$scope.receiptR.payMeth+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scopereceiptR.receiptR.amtdue+'</i></span></td></tr>',
+							'<tr><td><span><b>Tendered:</b></span></td><td><span><i>E '+$scope.receiptR.amttendered+'</i></span></td></tr>',
+							'<tr><td><span><b>Amount:</b></span></td><td><span><i>E '+$scope.receiptR.amtdue+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$scope.receiptR.change+'</i></span></td></tr>',
+						  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.receiptR.cashier*'</i></span></td></tr>',
+						  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.receiptR.station+'</i></span></td></tr>',
+						  	'</table>',
+						  	'</body>',
+							'<hr>'].join('\n');
+						  
+						$http.post('http://localhost:3080/print', {spuRec:opRecR}).success(function (resp) {
+						   
+						});
+					}
+			});
+		}
 
 		// **** Update auto incremental values function ****
 		// called after inserting a receipt
@@ -1442,7 +1775,7 @@ angular.module('receipt')
 		$scope.updateQuotation = function () {				
 			$scope.newBalance = $scope.quotes.balance - $scope.recamtCP;
 			var updatedQuote = {qDescription: $scope.quoteRef, qBalance:$scope.newBalance};
-			$http.post('/api/updateRecQuote', updatedQuote).success(function (resp) {
+			$http.post('/updateRecQuote', updatedQuote).success(function (resp) {
 				
 			});
 		}
@@ -1459,7 +1792,7 @@ angular.module('receipt')
 		// done when user chose new gl code and filled it in
 		$scope.insertGlCode = function () {
 			var newGlCode = {glcode: $scope.glCodeOP2, glCodeDesc:$scope.glCodeDesc};
-			$http.post('/api/addNewGlCode', newGlCode ).success(function (resp) {
+			$http.post('/addNewGlCode', newGlCode ).success(function (resp) {
 			}).error(function () {
 				console.log("An error occured");
 			});
@@ -1523,6 +1856,7 @@ angular.module('receipt')
 		// **** create receipt object function ****
 		// define receipt, do checks,  
 		$scope.insertRec = function (type) {
+			var status = "active";
 			$scope.currUserBatch = manageData.getUserCurrBatch();
 			var recType = type;
 			var cashier = $scope.currUser.firstname +" "+ $scope.currUser.lastname;
@@ -1542,44 +1876,35 @@ angular.module('receipt')
 
 				var glCode = "HF008888000";
 				var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoSPU, bankCode: $scope.bankCodeSPU, drawerName: $scope.drawerNameSPU};
-				var newTransfer = {bankCode: $scope.bankCodeSPU, drawerName: $scope.drawerNameSPU};
-
+				
 				$scope.paymentMethod = $scope.payMethSPU;
 				$scope.change = $scope.changeamtSPU;
 				$scope.CUSTOMERname = $scope.custNameSPU;
 
 				if ($scope.isMultiPay) {
-					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft" || $scope.payMethSPU == "Speedpoint") {
+					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch: $scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU,recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-						payMeth:$scope.payMethSPU};
-					}else if ($scope.payMethSPU == "Cheque") {			
+						payMeth:$scope.payMethSPU, status:status};
+					}else {			
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-							payMeth:$scope.payMethSPU,cheQue: newCheque };
-					} else if ($scope.payMethSPU == "Transfer") {
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
-							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-							payMeth:$scope.payMethSPU,transfer: newTransfer };
+							payMeth:$scope.payMethSPU,cheQue: newCheque,status:status };
 					}
 				} else if (!$scope.isMultiPay){
-					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft" || $scope.payMethSPU == "Speedpoint") {
+					if ($scope.payMethSPU == "Cash" || $scope.payMethSPU == "eft") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch: $scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU,recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-						payMeth:$scope.payMethSPU};
-					}else if ($scope.payMethSPU == "Cheque") {			
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
+						payMeth:$scope.payMethSPU,status:status};
+					}else {			
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
 							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-							payMeth:$scope.payMethSPU,cheQue: newCheque };
-					} else if ($scope.payMethSPU == "Transfer") {
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountSPU, recType:recType, glCode: glCode , custName:$scope.custNameSPU, 
-							custAddr: $scope.custAddrSPU, custCity: $scope.custCitySPU,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtSPU) ,amttendered: Number($scope.tendamtSPU), change: Number($scope.changeamtSPU), 
-							payMeth:$scope.payMethSPU,transfer: newTransfer };
+							payMeth:$scope.payMethSPU,cheQue: newCheque ,status:status};
 					}
 				}
 
 	            //Check if Receipt is Valid
-	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 				//PRINT SPU RECEIPT
 
 			    	var balance = Number($scope.custCurrBSPU) - Number($scope.recamtSPU);
@@ -1613,6 +1938,7 @@ angular.module('receipt')
 		            }            
 				}
 			} else if (recType == 'capital') {
+
 				if ($scope.choseCheque) {
 					$scope.chequeTot = $scope.recamtCP;
 				}
@@ -1632,25 +1958,20 @@ angular.module('receipt')
 					if ($scope.isAdminFee){
 						var glCode = $scope.glCode;
 						recType = "otherPayments";
-					} else {
+					}else {
 						var glCode = "HF008888089";
 					}
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoCP, bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
-					var newTransfer = {bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
 
-					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft" || $scope.payMethCP == "Speedpoint") {
+					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP};
-					} else if ($scope.payMethCP == "Cheque") {
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,status:status};
+					}else {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque};
-					} else if ($scope.payMethCP == "Transfer") {
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,transfer: newTransfer };
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque,status:status};
 					}
 					// after rectype was changed to otherpayments, restore it back to capital
 					recType = "capital";
-
 				} else if (!$scope.isMultiPay) {
 					if ($scope.isAdminFee){
 						var glCode = $scope.glCode;
@@ -1659,45 +1980,41 @@ angular.module('receipt')
 						var glCode = "HF008888089";
 					}
 					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoCP, bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
-					var newTransfer = {bankCode: $scope.bankCodeCP, drawerName: $scope.drawerNameCP};
 
-					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft" || $scope.payMethCP == "Speedpoint") {
+					if ($scope.payMethCP == "Cash" || $scope.payMethCP == "eft") {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP};
-					}else if ($scope.payMethCP == "Cheque") {
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,status:status};
+					}else {
 						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque};
-					} else if ($scope.payMethCP == "Transfer") {
-						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, quoteRef: $scope.quoteRef,recType:recType, glCode: glCode, custName: $scope.quotes.groupName, 
-							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,transfer: newTransfer };
+							cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtCP) , amttendered: Number($scope.tendamtCP), change: Number($scope.changeamtCP),payMeth:$scope.payMethCP,cheQue: newCheque,status:status};
 					}
 					recType = "capital";
 				}
 
 	            //Check if Receipt is Valid
-	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Transfer") || ($scope.paymentMethod == "Speedpoint") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
 					capRec = [
-					  	'<body>',
-		              	'<table>',
-		              	'<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
-		              	'<tr><td colspan=2><center><b>Payment Receipt</b></center></td></tr>',
-					  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.RecNo+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.newBatchNum+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.newTransNo+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.recDate+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Quotation:</b></span></td><td><span><i>'+$scope.quoteRef+'</i></span></td></tr></table>',
-					  	'<table><tr><td><span>'+$scope.quotes.groupName+'</span><br></td><td>&nbsp;</td></tr></table>',
-					  	'<table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><b>CURRENT BALANCE</b></span></td><td><span><i>'+$("#quotebal").text()+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Paid By:</b></span></td><td><span><i>'+$scope.payMethCP+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtcp").text()+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Tendered:</b></span></td><td><span><i>'+$("#tendamtcp").text()+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtcp").text()+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$("#changeamtcp").text()+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.currUser.firstname+'--'+$scope.currUser.lastname+'</i></span></td></tr>',
-					  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.currStation.stnname+'</i></span></td></tr>',
-					  	'</table>',
-					  	'</body>',
-				      	'<hr>'].join('\n');
+					  '<body>',
+		              '<table>',
+		              '<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+		              '<tr><td colspan=2><center><b>Payment Receipt</b></center></td></tr>',
+					  '<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.RecNo+'</i></span></td></tr>',
+					  '<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.newBatchNum+'</i></span></td></tr>',
+					  '<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.newTransNo+'</i></span></td></tr>',
+					  '<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.recDate+'</i></span></td></tr>',
+					  '<tr><td><span><b>Quotation:</b></span></td><td><span><i>'+$scope.quoteRef+'</i></span></td></tr></table>',
+					  '<table><tr><td><span>'+$scope.quotes.groupName+'</span><br></td><td>&nbsp;</td></tr></table>',
+					  '<table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><b>CURRENT BALANCE</b></span></td><td><span><i>'+$("#quotebal").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Paid By:</b></span></td><td><span><i>'+$scope.payMethCP+'</i></span></td></tr>',
+					  '<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtcp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Tendered:</b></span></td><td><span><i>'+$("#tendamtcp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtcp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$("#changeamtcp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.currUser.firstname+'--'+$scope.currUser.lastname+'</i></span></td></tr>',
+					  '<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.currStation.stnname+'</i></span></td></tr>',
+					  '</table>',
+					  '</body>',
+				      '<hr>'].join('\n');
 					  
 					// Only print receipt when not on EFT
 					if (!$scope.isEFT) {
@@ -1705,10 +2022,221 @@ angular.module('receipt')
 		        	    });
 		            }
 		        }
-			} 
+			} else if (recType == 'otherPayments') {
+
+				if ($scope.choseCheque) {
+					$scope.chequeTot = $scope.recamtOP;
+				}
+
+				if ($scope.isEFT){
+					$scope.currStation.stnname = $scope.stationEft.stnName;
+					$scope.currStation.stnnum = $scope.stationEft.stnId;
+					$scope.stationCode = $scope.stationEft.stnBatchCode;
+					$scope.payMethOP = "eft";
+				}
+
+				$scope.paymentMethod = $scope.payMethOP;
+				$scope.change = $scope.changeamtOP;
+				$scope.CUSTOMERname = $scope.custNameOther;
+				
+				if ($scope.isMultiPay) {			
+					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoOP, bankCode: $scope.bankCodeOP, drawerName: $scope.drawerNameOP};
+
+					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther, glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP, cheQue: newCheque,status:status};
+					}
+				} else if (!$scope.isMultiPay) {
+					var newCheque = {batchId:$scope.currUserBatch,chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoOP, bankCode: $scope.bankCodeOP, drawerName: $scope.drawerNameOP};
+
+					if ($scope.payMethOP == "Cash" || $scope.payMethOP == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther, glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum,recDate: $scope.recDate, recType:recType, custName: $scope.custNameOther,glCode: $scope.glCodeOP, 
+							custAddr: $scope.custAddr1Other, custCity: $scope.custAddr2Other,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtOP), amttendered: Number($scope.tendamtOP), change: Number($scope.changeamtOP),payMeth:$scope.payMethOP, cheQue: newCheque,status:status};
+					}
+				}
+
+	            //Check if Receipt is Valid
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "Cheque"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+					//PRINT OTHER PAYMENTS RECEIPT
+					opRec = [
+					  	'<body>',
+		                '<table>',
+		                '<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+		                '<tr><td colspan=2><center><b>Payment Receipt</b></center></td></tr>',
+					  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.RecNo+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.newBatchNum+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.newTransNo+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.recDate+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Customer :</b></span></td><td><span><i>'+$scope.custNameOther+'</i></span></td></tr></table>',
+					  	'<table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><b>OTHER</b></span></td><td><span><i>'+$("#recamtop").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Method:</b></span></td><td><span><i>'+$scope.payMethOP+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Tendered:</b></span></td><td><span><i>'+$("#tendamtop").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtop").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$("#changeamtop").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.currUser.firstname+'--'+$scope.currUser.lastname+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.currStation.stnname+'</i></span></td></tr>',
+					  	'</table>',
+					  	'</body>',
+					    '<hr>'].join('\n');
+
+					// Only print receipt when not on EFT  	
+					if (!$scope.isEFT) {
+		                $http.post('http://localhost:3080/print', {spuRec:opRec}).success(function (resp) {  
+		                });
+		            }
+		        }
+			} else if (recType == 'visits') {
+
+				if ($scope.choseCheque) {
+					$scope.chequeTot = $scope.recamtVT;
+				}
+
+				if ($scope.isEFT){
+					$scope.currStation.stnname = $scope.stationEft.stnName;
+					$scope.currStation.stnnum = $scope.stationEft.stnId;
+					$scope.stationCode = $scope.stationEft.stnBatchCode;
+					$scope.payMethVT = "eft";
+				}
+
+				$scope.paymentMethod = $scope.payMethVT;
+				$scope.change = $scope.changeamtVT;
+				$scope.CUSTOMERname = $scope.custNameVT;
+				
+				if ($scope.isMultiPay) {
+					var glCode = "HF008888089";
+					var newCheque = {chequeTot:$scope.chequeTot, chequeNospu: $scope.chequeNoVT, bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
+					
+					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,cheQue: newCheque,status:status};
+					}
+				} else if (!$scope.isMultiPay) {
+					var glCode = "HF008888089";
+					var newCheque = {chequeTot:$scope.chequeTot, chequeNospu: $scope.chequeNoVT, bankCode: $scope.bankCodeVT, drawerName: $scope.drawerNameVT};
+					
+					if ($scope.payMethVT == "Cash" || $scope.payMethVT == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate,recType:recType, custName:$scope.custNameVT,glCode: glCode, 
+							custAddr: $scope.custAddr1VT, custCity: $scope.custAddr2VT,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtVT),amttendered: Number($scope.tendamtVT), change: Number($scope.changeamtVT),payMeth:$scope.payMethVT,cheQue: newCheque,status:status};
+					}
+				}
+
+	            //Check if Receipt is Valid
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+					//PRINT VISIT RECEIPT
+					vtRec = [
+					  	'<body>',
+		                '<table>',
+		                '<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+		                '<tr><td colspan=2><center><b>Payment Receipt</b></center></td></tr>',
+					  	'<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.RecNo+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.newBatchNum+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.newTransNo+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Date:</b></span></td><td><span><i>'+$scope.recDate+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Customer :</b></span></td><td><span><i>'+$scope.custNameVT+'</i></span></td></tr></table>',
+					  	'<table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><b>VISIT FEE</b></span></td><td><span><i>'+$("#recamtvt").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Method:</b></span></td><td><span><i>'+$scope.payMethVT+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Tendered:</b></span></td><td><span><i>'+$("#tendamtvt").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtspu").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Change:</b></span></td><td><span><i>E '+$("#changeamtvt").text()+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.currUser.firstname+'--'+$scope.currUser.lastname+'</i></span></td></tr>',
+					  	'<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.currStation.stnname+'</i></span></td></tr>',
+					  	'</table>',
+						'</body>',
+					    '<hr>'].join('\n');
+					// Only print receipt when not on EFT
+					if (!$scope.isEFT) {
+		                $http.post('http://localhost:3080/print', {spuRec:vtRec}).success(function (resp) {  
+		                });
+		            }
+		        }
+			} else if (recType == 'deposits') {
+				
+				if ($scope.choseCheque) {
+					$scope.chequeTot = $scope.recamtDP;
+				}
+
+				if ($scope.isEFT){
+					$scope.currStation.stnname = $scope.stationEft.stnName;
+					$scope.currStation.stnnum = $scope.stationEft.stnId;
+					$scope.stationCode = $scope.stationEft.stnBatchCode;
+					$scope.payMethDP = "eft";
+				}
+
+				$scope.paymentMethod = $scope.payMethDP;
+				$scope.change = $scope.changeamtDP;
+				$scope.CUSTOMERname = $scope.custNameDP;
+
+				if ($scope.isMultiPay) {
+					var glCode = "HF008888012";
+					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoDP, bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
+
+					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName:$scope.custNameDP, 
+							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,mPayID:$scope.mpayid,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName: $scope.custNameDP, 
+							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,cheQue: newCheque,status:status};
+					}
+				} else if (!$scope.isMultiPay) {
+					var glCode = "HF008888012";
+					var newCheque = {chequeTot:$scope.chequeTot, chequeNo: $scope.chequeNoDP, bankCode: $scope.bankCodeDP, drawerName: $scope.drawerNameDP};
+
+					if ($scope.payMethDP == "Cash" || $scope.payMethDP == "eft") {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName:$scope.custNameDP, 
+							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,status:status};
+					}else {
+						var newRec = {cashierUname: $scope.currUser.username,batchId:$scope.currUserBatch,mPay:$scope.isMultiPay,mPayPos:$scope.mPayPos,recNum: $scope.RecNo, transNo: $scope.newTransNo, recBatch:$scope.newBatchNum, recDate: $scope.recDate, account: $scope.accountDP,recType:recType, glCode: glCode, custName: $scope.custNameDP, 
+							custAddr: $scope.custAddrDP, custCity: $scope.custCityDP,cashier: cashier, stnName:$scope.currStation.stnname, stnNum:$scope.currStation.stnnum, amtdue: Number($scope.recamtDP), amttendered: Number($scope.tendamtDP), change: Number($scope.changeamtDP),payMeth:$scope.payMethDP,cheQue: newCheque,status:status};
+					}
+				}
+
+	            //Check if Receipt is Valid
+	            if ((($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft"))&&($scope.change >= 0)&&($scope.CUSTOMERname != null)) {
+					//PRINT DEPOSIT RECEIPT
+					depRec = [
+					  '<body>',
+		              '<table>',
+		              '<tr><td colspan=2><center><u><b>Swaziland Electricity Company</b></u></center></td></tr>',
+		              '<tr><td colspan=2><center><b>Payment Receipt</b></center></td></tr>',
+					  '<tr><td><span><b>Receipt No:</b></span></td><td><span><i>'+$scope.RecNo+'</i></span></td></tr>',
+					  '<tr><td><span><b>Batch No:</b></span></td><td><span><i>'+$scope.newBatchNum+'</i></span></td></tr>',
+					  '<tr><td><span><b>Transaction No:</b></span></td><td><span><i>'+$scope.newTransNo+'</i></span></td></tr>',
+					  '<tr><td><span><b>Date:</b></span></td><td><span><i>'+$("#spuDate").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Account #:</b></span></td><td><span><i>'+$scope.accountDP+'</i></span></td></tr>',
+					  '<tr><td><span>'+$scope.custNameDP+'</span><br><span>'+$scope.custAddrDP+'</span><br><span>'+$scope.custCityDP+'</span></td><td>&nbsp;</td></tr></table>',
+					  '<table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><b>DEPOSIT</b></span></td><td><span><i>'+$("#recamtdp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Method:</b></span></td><td><span><i>'+$scope.payMethDP+'</i></span></td></tr>',
+					  '<tr><td><span><b>Tendered:</b></span></td><td><span><i>'+$("#tendamtdp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Amount:</b></span></td><td><span><i>'+$("#recamtdp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Change:</b></span></td><td><span><i>'+$("#changeamtdp").text()+'</i></span></td></tr>',
+					  '<tr><td><span><b>Cashier:</b></span></td><td><span><i>'+$scope.currUser.firstname+'--'+$scope.currUser.lastname+'</i></span></td></tr>',
+					  '<tr><td><span><b>Station:</b></span></td><td><span><i>'+$scope.currStation.stnname+'</i></span></td></tr>',
+					  '</table>',
+					  '</body>',
+					  '<hr>'].join('\n');
+					// Only print receipt when not on EFT  
+					if (!$scope.isEFT) {
+		                $http.post('http://localhost:3080/print', {spuRec:depRec}).success(function (resp) {  
+		                });
+		            }
+		        }
+			}
+
 			$scope.recInserted = false;
 			// check if payment method was selected
-			if (($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft")) {
+			if (($scope.paymentMethod == "Cash") || ($scope.paymentMethod == "Cheque") || ($scope.paymentMethod == "eft") || ($scope.paymentMethod == "Speedpoint") || ($scope.paymentMethod == "Transfer")) {
 				// check if tendered amount is not less than actual amount
 				if ($scope.change >= 0) {
 					// check if customer is known by the system
@@ -2078,44 +2606,65 @@ angular.module('receipt')
 		}
 
 		$scope.getCancelRec = function (recId) {
-				var idD = {recid:recId};			
+			$scope.hasCancelRErr = false;
+			$scope.cancelRErrorMsg = '';
+			$scope.cancelRecMsg = '';
+			$scope.cancelRec = false;
+			var idD = {recid:recId};
+
+			if (recId == null) {
+				$scope.hasCancelRErr = true;
+				$scope.cancelRErrorMsg = 'Enter receipt number';
+			} else {
+							
 				$http.post('/api/getReceipt',idD).success(function(data) {
-					$scope.theReceipt = data;
-				    $scope.receiptNo = '';
-				    var type = data.recType;
-				    if (type == "spu") {
-					$scope.account = data.account;
-					$scope.cust = data.custName;
-				    } else if (type == "capital") {
-					$scope.account = data.quoteRef;
-					$scope.cust = data.custName;
-				    } else if (type == "deposits") {
-					$scope.account = data.account;
-					$scope.cust = data.customer;
-				    } else {
-					$scope.cust = data.custName;
-				    }	
-				    $scope.recNum = data.recNum;
-				    $scope.cashier = data.cashier;
-				    $scope.station = data.stnName;
-				    $scope.amtdue = data.amtdue;
-				    $scope.hasinfo = true;
+					if (data == "Receipt not in database") {
+						$scope.hasCancelRErr = true;
+						$scope.cancelRErrorMsg = 'Entered receipt does not exist';
+					} else {
+						$scope.theReceipt = data;
+						$scope.receiptNo = '';
+						var type = data.recType;
+						if (type == "spu") {
+							$scope.account = data.account;
+							$scope.cust = data.custName;
+						} else if (type == "capital") {
+							$scope.account = data.quoteRef;
+							$scope.cust = data.custName;
+						} else if (type == "deposits") {
+							$scope.account = data.account;
+							$scope.cust = data.customer;
+						} else {
+							$scope.cust = data.custName;
+						}	
+						$scope.recNum = data.recNum;
+						$scope.cashier = data.cashier;
+						$scope.station = data.stnName;
+						$scope.amtdue = data.amtdue;
+						$scope.receiptNoC = '';
+						$scope.hasCancelR = true;
+						$scope.cancelR = true;
+
+					}
 				});
+			}
 		}
 
 		$scope.clearCancelRec = function () {
-			    $scope.hasinfo = false;
+			    $scope.hasCancelR = false;
 				$scope.id = '';
 				$scope.user = '';
 				$scope.cust = '';
 				$scope.station = '';
 				$scope.amtdue = '';
 				$scope.receiptNoC = '';
+				$scope.cancelR = false;
 		}
 
 		$scope.cancelCancelRec = function () {
 			    $scope.hasinfo = false;
 				$scope.clearCancelRec();
+				$scope.cancelMPay = false;
 		}
 
 		$scope.cancelReceipt = function (recId) {
@@ -2125,7 +2674,10 @@ angular.module('receipt')
 				var theCancelReceipt = $scope.theReceipt;
 
 				$http.post('/api/cancelRec',theCancelReceipt).success (function (resp) {
+					$scope.cancelRec = true;
+					$scope.cancelRecMsg = resp;
 	          		$scope.clearCancelRec();
+	          		$scope.cancelR = false;
 
 					// log event
 					var log = {action:"cancelReceipt", canceledReceipt:recId, actionBy:$scope.currUser.username, station:$scope.currStation.stnId, time:Date().toString()};
@@ -2145,17 +2697,17 @@ angular.module('receipt')
 		}
 
 		$scope.testCash = function (payMeth) {
-				//var test = payMeth;
-				if ($scope.payMeth == 'Cash') {
-					return true;
-				}
+			//var test = payMeth;
+			if ($scope.payMeth == 'Cash') {
+				return true;
+			}
 		}
 
 		$scope.testCheque = function (payMeth) {
-				//var test = payMeth;
-				if ($scope.payMeth == 'Cheque') {
-					return true;
-				}
+			//var test = payMeth;
+			if ($scope.payMeth == 'Cheque') {
+				return true;
+			}
 		}
 
 		$scope.cancelMultiPayProcess = function (){
@@ -2169,59 +2721,73 @@ angular.module('receipt')
 				$scope.chequeTot = '';
 		}
 
+		$scope.cancelCancelMpay = function () {
+			$scope.hasMultipayR = false;
+			$scope.mPay = "";
+			$scope.multipayId = "";
+			$scope.receiptNoC = "";
+			$scope.cancelMPay = false;
+		}
+
 		$scope.acceptMultiPay = function (){
-				$scope.getAutInVals($scope.currStation.stnId);
-				$scope.mpayid = $scope.mpayid + 1;
-				$scope.updateAutoIncVals($scope.stationCode, $scope.newRecNo, $scope.newTransNo, $scope.mpayid);
-				$scope.isMultiPay = true;
+				$scope.getAutInVals($scope.currStation.stnnum)
+				.then(function(data){
+					console.log(data);
+					console.log(data.mPayID);
+					$scope.mpayid = data.mPayID + 1;
+					console.log($scope.currStation.stnnum);
+					$scope.updateAutoIncVals($scope.currStation.stnnum, $scope.newRecNo, $scope.newTransNo, $scope.mpayid);
+					$scope.isMultiPay = true;
 
-				$scope.bankCodeSPU=$scope.bankCode;
-				$scope.bankCodeCP=$scope.bankCode;		
-				$scope.bankCodeDP=$scope.bankCode;
-				$scope.bankCodeVT=$scope.bankCode;
-				$scope.bankCodeOP=$scope.bankCode;
+					$scope.bankCodeSPU=$scope.bankCode;
+					$scope.bankCodeCP=$scope.bankCode;		
+					$scope.bankCodeDP=$scope.bankCode;
+					$scope.bankCodeVT=$scope.bankCode;
+					$scope.bankCodeOP=$scope.bankCode;
 
-				$scope.chequeNoSPU=$scope.chequeNo;
-				$scope.chequeNoCP=$scope.chequeNo;
-				$scope.chequeNoDP=$scope.chequeNo;
-				$scope.chequeNoVT=$scope.chequeNo;
-				$scope.chequeNoOP=$scope.chequeNo;
-				
-				$scope.drawerNameSPU=$scope.drawerName;
-				$scope.drawerNameCP=$scope.drawerName;
-				$scope.drawerNameDP=$scope.drawerName;
-				$scope.drawerNameVT=$scope.drawerName;
-				$scope.drawerNameOP=$scope.drawerName;
+					$scope.chequeNoSPU=$scope.chequeNo;
+					$scope.chequeNoCP=$scope.chequeNo;
+					$scope.chequeNoDP=$scope.chequeNo;
+					$scope.chequeNoVT=$scope.chequeNo;
+					$scope.chequeNoOP=$scope.chequeNo;
+					
+					$scope.drawerNameSPU=$scope.drawerName;
+					$scope.drawerNameCP=$scope.drawerName;
+					$scope.drawerNameDP=$scope.drawerName;
+					$scope.drawerNameVT=$scope.drawerName;
+					$scope.drawerNameOP=$scope.drawerName;
 
-				if ($scope.payMeth == 'Cash') {
-					//set Pay Method
-					$scope.payMethSPU = 'Cash';
-					$scope.payMethCP = 'Cash';
-					$scope.payMethDP = 'Cash';
-					$scope.payMethVT = 'Cash';
-					$scope.payMethOP = 'Cash';
-					$scope.balance = $scope.cashTot;
-					//set tendered Amount
-					$scope.tendamtSPU = $scope.balance;
-					$scope.tendamtCP = $scope.balance;
-					$scope.tendamtDP = $scope.balance;
-					$scope.tendamtVT = $scope.balance;
-					$scope.tendamtOP = $scope.balance;
-				}else if ($scope.payMeth == 'Cheque'){
-					//set Pay Method
-					$scope.balance = $scope.chequeTot;
-					$scope.payMethSPU = 'Cheque';
-					$scope.payMethCP = 'Cheque';
-					$scope.payMethDP = 'Cheque';
-					$scope.payMethVT = 'Cheque';
-					$scope.payMethOP = 'Cheque';
-					//set tendered Amount
-					$scope.tendamtSPU = $scope.balance;
-					$scope.tendamtCP = $scope.balance;
-					$scope.tendamtDP = $scope.balance;
-					$scope.tendamtVT = $scope.balance;
-					$scope.tendamtOP = $scope.balance;
-				}
+					if ($scope.payMeth == 'Cash') {
+						//set Pay Method
+						$scope.payMethSPU = 'Cash';
+						$scope.payMethCP = 'Cash';
+						$scope.payMethDP = 'Cash';
+						$scope.payMethVT = 'Cash';
+						$scope.payMethOP = 'Cash';
+						$scope.balance = $scope.cashTot;
+						//set tendered Amount
+						$scope.tendamtSPU = $scope.balance;
+						$scope.tendamtCP = $scope.balance;
+						$scope.tendamtDP = $scope.balance;
+						$scope.tendamtVT = $scope.balance;
+						$scope.tendamtOP = $scope.balance;
+					}else if ($scope.payMeth == 'Cheque'){
+						//set Pay Method
+						$scope.balance = $scope.chequeTot;
+						$scope.payMethSPU = 'Cheque';
+						$scope.payMethCP = 'Cheque';
+						$scope.payMethDP = 'Cheque';
+						$scope.payMethVT = 'Cheque';
+						$scope.payMethOP = 'Cheque';
+						//set tendered Amount
+						$scope.tendamtSPU = $scope.balance;
+						$scope.tendamtCP = $scope.balance;
+						$scope.tendamtDP = $scope.balance;
+						$scope.tendamtVT = $scope.balance;
+						$scope.tendamtOP = $scope.balance;
+					}
+				});
+			
 		}
 
 		$scope.terminateMultiPay = function () {
@@ -2240,15 +2806,25 @@ angular.module('receipt')
 				});
 		}
 
-		$scope.softRemoveReceipts = function (mpayid) {
-				var id = mpayid;
-				$scope.mPayID = Number(id);
-				$http.post('/api/softDeleteMPay/' + id).success(function(resp) {
-					
+		$scope.softRemoveReceipts = function (mpayid, recno) {
+			console.log("Cancelling mpay");
+			console.log(mpayid);
+			console.log(recno);
+				var receipt = {id:Number(mpayid),recno:recno};
+				$http.post('/api/softDeleteMPay/', receipt).success(function(resp) {
+					$scope.hasCancelMpayErr = false;
+					$scope.hasMultipayR = false;
+					$scope.cancelMpayErrorMsg = "";
+					$scope.cancelMpay = true;
+					$scope.cancelMpayMsg = resp;
+					$scope.mPay = "";
+					$scope.multipayId = "";
+					$scope.receiptNoC = "";
+					$scope.cancelMPay = false;
 					// log event
-					var log = {action:"sodftDeleteMpay", deletedMpay:mpayid, actionBy:$scope.currUser.username, station:$scope.currStation.stnId, time:Date().toString()};
+					/*var log = {action:"sodftDeleteMpay", deletedMpay:mpayid, actionBy:$scope.currUser.username, station:$scope.currStation.stnId, time:Date().toString()};
 		            recSwitch.insertLog(log).success(function () {
-		            });
+		            });*/
 
 				}).error(function () {
 					console.log("An error occured");
@@ -2257,20 +2833,30 @@ angular.module('receipt')
 				//clear things here
 		}
 
-		$scope.showMultiPays = function(){
-			    $http.post('/api/showAllMultiPays').success(function (data) {
-			        $scope.multiPay = data;
-			        mPayData = '';
-			        data.forEach(function(mPay){
-			            mPayData += '<tr><td>'+mPay.mPayID+'</td><td>'+mPay.recNum+'</td><td>'+mPay.recBatch+'</td><td><a data-dismiss="modal" data-toggle="modal" ng-click="softRemoveReceipts(\''+mPay.mPayID+'\')"><button>Cancel</button></a></td></tr>';
-			        });
-			        $('#showMultiPayRecsTblData').html('');
-			        var $mPayData1 = $(mPayData).appendTo('#showMultiPayRecsTblData');
-			        $compile($mPayData1)($scope);
-			        $('.mpaytable').dataTable();	            
-			    }).error(function (){
-			        console.log("An error occured");
-			    });
+		$scope.getMultipayR = function(mPayId, recNo){
+			$scope.hasCancelMpayErr = false;
+			$scope.cancelMpayErrorMsg = "";
+			if (mPayId == null || recNo == null) {
+				$scope.hasCancelMpayErr = true;
+				$scope.cancelMpayErrorMsg = "Fill all fields";
+			} else if (isNaN(mPayId)) {
+				$scope.hasCancelMpayErr = true;
+				$scope.cancelMpayErrorMsg = "Multipay ID should be numeric";
+			} else {
+				var receipt = {mPayId:Number(mPayId), receiptNo:recNo};
+				$http.post('/api/getMultiPay', receipt).success(function (data) {
+					if (data == "Multipay does not exist") {
+						$scope.hasCancelMpayErr = true;
+						$scope.cancelMpayErrorMsg = "Entered multipay does not exist";
+					} else {
+						$scope.hasMultipayR = true;
+				    	$scope.mPay = data;	 
+				    	$scope.cancelMPay = true;   
+					}        
+				}).error(function (){
+				    console.log("An error occured");
+				});
+			}
 		}
 
 		$scope.initMultiPay = function () {
@@ -2465,13 +3051,45 @@ angular.module('receipt')
 	/*receipt.controller('multiPayCtrl', ['$scope','$http', 'recSwitch','recTypeService', function($scope, $http, recSwitch, recTypeService){		
 	}]);*/
 
-	.controller('usersTblCtrl',['$scope','$http', function($scope, $http){
+	.controller('usersTblCtrl',['$scope','$http', 'DTOptionsBuilder','DTColumnDefBuilder', function($scope, $http, DTOptionsBuilder,DTColumnDefBuilder){
+		var vm = this;
+		vm.dtOptions = DTOptionsBuilder.newOptions()
+		    .withBootstrap()
+		    .withPaginationType('full_numbers')
+		    .withDisplayLength(10);
+		    //.withDOM('pitrfl');
 	}])
 
-	.controller('stnTblCtrl',['$scope','$http', function($scope, $http){
+	.controller('custTblCtrl',['$scope','$http', 'DTOptionsBuilder','DTColumnDefBuilder', function($scope, $http, DTOptionsBuilder,DTColumnDefBuilder){
+		var vm = this;
+		vm.dtOptions = DTOptionsBuilder.newOptions()
+		    .withBootstrap()
+		    .withPaginationType('full_numbers')
+		    .withDisplayLength(10);
 	}])
 
-	.controller('qTblCtrl',['$scope','$http', function($scope, $http){
+	.controller('reprintRTblCtrl',['$scope','$http', 'DTOptionsBuilder','DTColumnDefBuilder', function($scope, $http, DTOptionsBuilder,DTColumnDefBuilder){
+		var vm = this;
+		vm.dtOptions = DTOptionsBuilder.newOptions()
+		    .withBootstrap()
+		    .withPaginationType('full_numbers')
+		    .withDisplayLength(10);
+	}])
+
+	.controller('stnTblCtrl',['$scope','$http', 'DTOptionsBuilder','DTColumnDefBuilder', function($scope, $http, DTOptionsBuilder,DTColumnDefBuilder){
+		var vm = this;
+		vm.dtOptions = DTOptionsBuilder.newOptions()
+		    .withBootstrap()
+		    .withPaginationType('full_numbers')
+		    .withDisplayLength(10);
+	}])
+
+	.controller('qTblCtrl',['$scope','$http', 'DTOptionsBuilder','DTColumnDefBuilder', function($scope, $http, DTOptionsBuilder,DTColumnDefBuilder){
+		var vm = this;
+		vm.dtOptions = DTOptionsBuilder.newOptions()
+		    .withBootstrap()
+		    .withPaginationType('full_numbers')
+		    .withDisplayLength(10);
 	}])
 
 	.controller('repCtrl',['$scope','$http', '$q', 'manageData', 'getParams', function($scope, $http, $q, manageData, getParams){
